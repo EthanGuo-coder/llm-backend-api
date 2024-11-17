@@ -10,10 +10,10 @@ import (
 )
 
 func RegisterConversationRoutes(r *gin.Engine) {
-	group := r.Group("/api/conversations/create")
+	group := r.Group("/api/conversations")
 	{
-		group.POST("/", createConversation)
-		group.GET("/history/:conversation_id", getConversationHistory)
+		group.POST("/create/", createConversation)
+		group.GET("/history/:conversation_id/", getConversationHistory)
 	}
 }
 

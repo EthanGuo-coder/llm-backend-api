@@ -10,7 +10,7 @@ import (
 )
 
 func RegisterChatRoutes(r *gin.Engine) {
-	group := r.Group("/api/conversations/:conversation_id/messages")
+	group := r.Group("/api/conversations/:conversation_id/chat")
 	{
 		group.POST("/", streamSendMessage) // 流式返回消息
 	}

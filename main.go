@@ -17,9 +17,6 @@ func main() {
 	routes.RegisterConversationRoutes(r)
 	routes.RegisterChatRoutes(r)
 
-	// 定义 POST 路由
-	r.POST("/api/chat", streamChat)
-
 	// 启动服务器
 	r.Run(":8080") // 启动在8080端口
 }
