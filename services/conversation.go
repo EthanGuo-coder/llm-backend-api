@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"github.com/EthanGuo-coder/llm-backend-api/constant"
 	"time"
 
 	"github.com/EthanGuo-coder/llm-backend-api/models"
@@ -10,28 +11,25 @@ import (
 )
 
 // CreateConversation 创建新的会话
-func CreateConversation(title string) (*models.Conversation, error) {
-	// 生成唯一的会话 ID
+func CreateConversation(title, model string) (*models.Conversation, error) {
 	conversationID := utils.GenerateID()
-	createdTime := time.Now().Format(time.RFC3339) // 使用 ISO 8601 格式记录时间
-	// 初始化会话结构
 	conversation := &models.Conversation{
-		ID:          conversationID,
-		Title:       title,
-		Messages:    []models.Message{},
-		CreatedTime: createdTime,
+		ID:    conversationID,
+		Title: title,
+		Model: model,
+		Messages: []models.Message{
+			{Role: "system", Content: constant.SystemPrompt},
+		},
+		CreatedTime: time.Now().Unix(),
 	}
-	// 保存到存储层
-	err := storage.SaveConversation(conversation)
-	if err != nil {
+	if err := storage.SaveConversation(conversation); err != nil {
 		return nil, errors.New("failed to save conversation: " + err.Error())
 	}
 	return conversation, nil
 }
 
-// GetConversationHistory 获取会话的完整历史
+// GetConversationHistory 获取完整的会话历史
 func GetConversationHistory(conversationID string) (*models.Conversation, error) {
-	// 获取会话元信息
 	conversation, err := storage.GetConversation(conversationID)
 	if err != nil {
 		return nil, errors.New("failed to fetch conversation: " + err.Error())
@@ -39,11 +37,5 @@ func GetConversationHistory(conversationID string) (*models.Conversation, error)
 	if conversation == nil {
 		return nil, errors.New("conversation not found")
 	}
-	// 获取该会话的消息记录
-	messages, err := storage.GetMessages(conversationID)
-	if err != nil {
-		return nil, errors.New("failed to fetch messages: " + err.Error())
-	}
-	conversation.Messages = messages
 	return conversation, nil
 }

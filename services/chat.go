@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/EthanGuo-coder/llm-backend-api/constant"
@@ -16,21 +15,19 @@ import (
 )
 
 // StreamSendMessage 处理流式消息发送
-func StreamSendMessage(c *gin.Context, conversationID, model, apiKey, message string) error {
-	// 添加用户消息到 Redis
-	userMessage := models.Message{Role: "user", Content: message}
-	if err := storage.SaveMessages(conversationID, []models.Message{userMessage}); err != nil {
-		return fmt.Errorf("failed to save user message: %w", err)
-	}
-
-	// 获取会话上下文
+func StreamSendMessage(c *gin.Context, conversationID, apiKey, message string) error {
+	// 获取会话
 	conversation, err := storage.GetConversation(conversationID)
 	if err != nil || conversation == nil {
 		return fmt.Errorf("conversation not found")
 	}
 
+	// 添加用户消息到上下文
+	userMessage := models.Message{Role: "user", Content: message}
+	conversation.Messages = append(conversation.Messages, userMessage)
+
 	requestBody := map[string]interface{}{
-		"model":    model,
+		"model":    conversation.Model,
 		"messages": conversation.Messages, // 包含上下文的消息
 		"stream":   true,
 	}
@@ -38,7 +35,6 @@ func StreamSendMessage(c *gin.Context, conversationID, model, apiKey, message st
 	if err != nil {
 		return fmt.Errorf("failed to marshal request body: %w", err)
 	}
-	log.Printf("Request Body: %s\n", string(requestData))
 
 	// 创建 HTTP 请求
 	client := &http.Client{}
@@ -94,17 +90,6 @@ func StreamSendMessage(c *gin.Context, conversationID, model, apiKey, message st
 
 			// 检测结束标志
 			if string(data) == "[DONE]" {
-				// 发送结束事件
-				endMessage, _ := json.Marshal(map[string]string{
-					"event": "done",
-					"data":  "Stream finished",
-				})
-				fmt.Fprintf(c.Writer, "%s\n\n", endMessage)
-				c.Writer.Flush()
-
-				// 打印完整的返回信息
-				fmt.Fprintf(c.Writer, "{\"event\":\"full_response\",\"data\":\"%s\"}\n\n", fullResponse)
-				c.Writer.Flush()
 				break
 			}
 
@@ -134,11 +119,25 @@ func StreamSendMessage(c *gin.Context, conversationID, model, apiKey, message st
 		}
 	}
 
-	// 保存完整 AI 回复到 Redis
+	// 添加 AI 回复到上下文
 	aiMessage := models.Message{Role: "assistant", Content: fullResponse}
-	if err := storage.SaveMessages(conversationID, []models.Message{aiMessage}); err != nil {
-		return fmt.Errorf("failed to save AI message: %w", err)
+	conversation.Messages = append(conversation.Messages, aiMessage)
+
+	// 保存完整会话到 Redis
+	if err := storage.SaveConversation(conversation); err != nil {
+		return fmt.Errorf("failed to save conversation: %w", err)
 	}
+
+	endMessage, _ := json.Marshal(map[string]string{
+		"event": "done",
+		"data":  "Stream finished",
+	})
+	fmt.Fprintf(c.Writer, "%s\n\n", endMessage)
+	c.Writer.Flush()
+
+	// 打印完整的返回信息
+	fmt.Fprintf(c.Writer, "{\"event\":\"full_response\",\"data\":\"%s\"}\n\n", fullResponse)
+	c.Writer.Flush()
 
 	return nil
 }

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"github.com/EthanGuo-coder/llm-backend-api/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,15 +18,13 @@ func RegisterConversationRoutes(r *gin.Engine) {
 }
 
 func createConversation(c *gin.Context) {
-	var req struct {
-		Title string `json:"title" binding:"required"`
-	}
+	var req models.ConversationReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
-	conversation, err := services.CreateConversation(req.Title)
+	conversation, err := services.CreateConversation(req.Title, req.Model)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
