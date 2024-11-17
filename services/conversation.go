@@ -14,7 +14,6 @@ func CreateConversation(title string) (*models.Conversation, error) {
 	// 生成唯一的会话 ID
 	conversationID := utils.GenerateID()
 	createdTime := time.Now().Format(time.RFC3339) // 使用 ISO 8601 格式记录时间
-
 	// 初始化会话结构
 	conversation := &models.Conversation{
 		ID:          conversationID,
@@ -22,13 +21,11 @@ func CreateConversation(title string) (*models.Conversation, error) {
 		Messages:    []models.Message{},
 		CreatedTime: createdTime,
 	}
-
 	// 保存到存储层
 	err := storage.SaveConversation(conversation)
 	if err != nil {
 		return nil, errors.New("failed to save conversation: " + err.Error())
 	}
-
 	return conversation, nil
 }
 
@@ -42,13 +39,11 @@ func GetConversationHistory(conversationID string) (*models.Conversation, error)
 	if conversation == nil {
 		return nil, errors.New("conversation not found")
 	}
-
 	// 获取该会话的消息记录
 	messages, err := storage.GetMessages(conversationID)
 	if err != nil {
 		return nil, errors.New("failed to fetch messages: " + err.Error())
 	}
 	conversation.Messages = messages
-
 	return conversation, nil
 }

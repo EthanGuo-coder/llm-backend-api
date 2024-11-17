@@ -27,7 +27,11 @@ func createConversation(c *gin.Context) {
 		return
 	}
 
-	conversation := services.CreateConversation(req.Title)
+	conversation, err := services.CreateConversation(req.Title)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
 	c.JSON(http.StatusOK, conversation)
 }
 

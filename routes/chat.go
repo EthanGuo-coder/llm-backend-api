@@ -3,34 +3,33 @@ package routes
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/EthanGuo-coder/llm-backend-api/services"
+
+	"github.com/gin-gonic/gin"
 )
 
 func RegisterChatRoutes(r *gin.Engine) {
 	group := r.Group("/api/conversations/:conversation_id/messages")
 	{
-		group.POST("/", sendMessage)
+		group.POST("/", streamSendMessage) // 流式返回消息
 	}
 }
 
-func sendMessage(c *gin.Context) {
+func streamSendMessage(c *gin.Context) {
 	conversationID := c.Param("conversation_id")
+
 	var req struct {
 		Model   string `json:"model" binding:"required"`
 		ApiKey  string `json:"api_key" binding:"required"`
 		Message string `json:"message" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
-	response, err := services.SendMessage(conversationID, req.Model, req.ApiKey, req.Message)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Conversation not found"})
-		return
+	// 流式处理消息并返回 SSE
+	if err := services.StreamSendMessage(c, conversationID, req.Model, req.ApiKey, req.Message); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-	c.JSON(http.StatusOK, response)
 }
