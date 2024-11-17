@@ -9,18 +9,16 @@ import (
 )
 
 func RegisterConversationRoutes(r *gin.Engine) {
-	group := r.Group("/api/conversations")
+	group := r.Group("/api/conversations/create")
 	{
 		group.POST("/", createConversation)
-		group.GET("/:conversation_id", getConversationHistory)
+		group.GET("/history/:conversation_id", getConversationHistory)
 	}
 }
 
 func createConversation(c *gin.Context) {
 	var req struct {
-		Model  string `json:"model" binding:"required"`
-		ApiKey string `json:"api_key" binding:"required"`
-		Title  string `json:"title" binding:"required"`
+		Title string `json:"title" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})

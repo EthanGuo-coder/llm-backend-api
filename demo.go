@@ -1,85 +1,94 @@
-package services
+package main
 
 import (
 	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
-	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/EthanGuo-coder/llm-backend-api/constant"
 	"github.com/EthanGuo-coder/llm-backend-api/models"
-	"github.com/EthanGuo-coder/llm-backend-api/storage"
 )
 
-// StreamSendMessage 处理流式消息发送
-func StreamSendMessage(c *gin.Context, conversationID, model, apiKey, message string) error {
-	// 添加用户消息到 Redis
-	userMessage := models.Message{Role: "user", Content: message}
-	if err := storage.SaveMessages(conversationID, []models.Message{userMessage}); err != nil {
-		return fmt.Errorf("failed to save user message: %w", err)
+func streamChat(c *gin.Context) {
+	// 设置响应头为 SSE
+	c.Writer.Header().Set("Content-Type", "text/event-stream")
+	c.Writer.Header().Set("Cache-Control", "no-cache")
+	c.Writer.Header().Set("Connection", "keep-alive")
+	c.Writer.Header().Set("Transfer-Encoding", "chunked")
+
+	// 接收参数
+	var req struct {
+		Model  string `json:"model" binding:"required"`
+		ApiKey string `json:"api_key" binding:"required"`
+		Query  string `json:"query" binding:"required"` // 新增 query 参数
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
 	}
 
-	// 获取会话上下文
-	conversation, err := storage.GetConversation(conversationID)
-	if err != nil || conversation == nil {
-		return fmt.Errorf("conversation not found")
+	// 构造请求的消息体
+	messages := []map[string]string{
+		{"role": "system", "content": "你是一个乐于回答各种问题的小助手"},
+		{"role": "user", "content": req.Query}, // 用户传入的问题作为内容
 	}
 
 	requestBody := map[string]interface{}{
-		"model":    model,
-		"messages": conversation.Messages, // 包含上下文的消息
-		"stream":   true,
+		"model":    req.Model,
+		"messages": messages,
+		"stream":   true, // 开启SSE流式返回
 	}
+
+	// 将请求体转换为JSON格式
 	requestData, err := json.Marshal(requestBody)
 	if err != nil {
-		return fmt.Errorf("failed to marshal request body: %w", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal request body"})
+		return
 	}
-	log.Printf("Request Body: %s\n", string(requestData))
 
-	// 创建 HTTP 请求
+	// 创建HTTP请求
 	client := &http.Client{}
 	apiReq, err := http.NewRequest("POST", constant.BaseURL, bytes.NewBuffer(requestData))
 	if err != nil {
-		return fmt.Errorf("failed to create request: %w", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
+		return
 	}
 
-	// 请求头
+	// 设置请求头
 	apiReq.Header.Set("Content-Type", "application/json")
-	apiReq.Header.Set("Authorization", "Bearer "+apiKey)
+	apiReq.Header.Set("Authorization", "Bearer "+req.ApiKey)
 
-	// 发送 HTTP 请求
+	// 发送HTTP请求
 	resp, err := client.Do(apiReq)
 	if err != nil {
-		return fmt.Errorf("failed to send request: %w", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send request"})
+		return
 	}
 	defer resp.Body.Close()
 
 	// 检查响应状态码
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("unexpected response status: %s", string(body))
+		c.JSON(resp.StatusCode, gin.H{"error": "Unexpected response status", "details": string(body)})
+		return
 	}
 
-	// 设置 SSE 响应头
-	c.Writer.Header().Set("Content-Type", "text/event-stream")
-	c.Writer.Header().Set("Cache-Control", "no-cache")
-	c.Writer.Header().Set("Connection", "keep-alive")
-
-	// 解析 SSE 数据
+	// 解析SSE流数据并实时以JSON格式返回
 	reader := bufio.NewReader(resp.Body)
-	var fullResponse string
-
+	var fullResponse string // 用于存储完整的返回信息
 	for {
 		line, err := reader.ReadBytes('\n')
 		if err != nil {
 			if err == io.EOF {
 				break
 			}
-			return fmt.Errorf("error reading stream: %w", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error reading stream", "details": err.Error()})
+			return
 		}
 
 		// 忽略注释行或空行
@@ -109,7 +118,7 @@ func StreamSendMessage(c *gin.Context, conversationID, model, apiKey, message st
 			}
 
 			// 使用结构体解析JSON格式数据
-			var sseResponse *models.SSEResponse
+			var sseResponse models.SSEResponse
 			if err := json.Unmarshal(data, &sseResponse); err != nil {
 				errorMessage, _ := json.Marshal(map[string]string{
 					"event": "error",
@@ -133,12 +142,4 @@ func StreamSendMessage(c *gin.Context, conversationID, model, apiKey, message st
 			}
 		}
 	}
-
-	// 保存完整 AI 回复到 Redis
-	aiMessage := models.Message{Role: "assistant", Content: fullResponse}
-	if err := storage.SaveMessages(conversationID, []models.Message{aiMessage}); err != nil {
-		return fmt.Errorf("failed to save AI message: %w", err)
-	}
-
-	return nil
 }

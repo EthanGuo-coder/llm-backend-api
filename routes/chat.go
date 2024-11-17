@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"github.com/EthanGuo-coder/llm-backend-api/models"
+	"log"
 	"net/http"
 
 	"github.com/EthanGuo-coder/llm-backend-api/services"
@@ -18,17 +20,14 @@ func RegisterChatRoutes(r *gin.Engine) {
 func streamSendMessage(c *gin.Context) {
 	conversationID := c.Param("conversation_id")
 
-	var req struct {
-		Model   string `json:"model" binding:"required"`
-		ApiKey  string `json:"api_key" binding:"required"`
-		Message string `json:"message" binding:"required"`
-	}
+	var req *models.Req
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
 	// 流式处理消息并返回 SSE
+	log.Println(conversationID, req.Model, req.ApiKey, req.Message)
 	if err := services.StreamSendMessage(c, conversationID, req.Model, req.ApiKey, req.Message); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}

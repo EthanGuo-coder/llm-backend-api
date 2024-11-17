@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/EthanGuo-coder/llm-backend-api/constant"
 	"github.com/EthanGuo-coder/llm-backend-api/models"
 	"github.com/EthanGuo-coder/llm-backend-api/storage"
 	"github.com/EthanGuo-coder/llm-backend-api/utils"
@@ -17,11 +16,9 @@ func CreateConversation(title string) (*models.Conversation, error) {
 	createdTime := time.Now().Format(time.RFC3339) // 使用 ISO 8601 格式记录时间
 	// 初始化会话结构
 	conversation := &models.Conversation{
-		ID:    conversationID,
-		Title: title,
-		Messages: []models.Message{
-			{Role: "system", Content: constant.SystemPrompt},
-		},
+		ID:          conversationID,
+		Title:       title,
+		Messages:    []models.Message{},
 		CreatedTime: createdTime,
 	}
 	// 保存到存储层

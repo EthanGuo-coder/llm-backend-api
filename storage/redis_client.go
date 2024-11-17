@@ -24,8 +24,3 @@ func InitializeRedis(addr, password string, db int) {
 	}
 	fmt.Println("Connected to Redis successfully!")
 }
-
-// GetRedisClient 获取 Redis 客户端
-func GetRedisClient() *redis.Client {
-	return redisClient
-}

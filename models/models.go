@@ -24,3 +24,9 @@ type SSEChoice struct {
 type SSEResponse struct {
 	Choices []SSEChoice `json:"choices"`
 }
+
+type Req struct {
+	Model   string `json:"model" binding:"required"`
+	ApiKey  string `json:"api_key" binding:"required"`
+	Message string `json:"message" binding:"required"`
+}
