@@ -120,7 +120,7 @@ Retrieves the history of messages in the specified conversation.
 {
     "conversation_id": "329629",   // Unique ID of the conversation
     "title": "My New Conversation", // Title of the conversation
-    "model": "glm-4-air",           // Model used
+    "model": "gpt-4o",           // Model used
     "messages": [
         {
             "role": "system",       // Role of the message sender
@@ -149,7 +149,7 @@ curl -X POST http://localhost:8080/api/conversations/create/ \
 -H "Content-Type: application/json" \
 -d '{
     "title": "My New Conversation",
-    "model": "glm-4-air"
+    "model": "gpt-4o"
 }'
 ```
 
