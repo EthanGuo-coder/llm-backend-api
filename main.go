@@ -12,7 +12,7 @@ func main() {
 	storage.InitializeRedis("localhost:6379", "", 0)
 
 	r := gin.Default()
-	r.RedirectTrailingSlash = false
+	r.RedirectTrailingSlash = true
 
 	routes.RegisterConversationRoutes(r)
 	routes.RegisterChatRoutes(r)
