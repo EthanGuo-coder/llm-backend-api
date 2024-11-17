@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/EthanGuo-coder/llm-backend-api/constant"
 	"io"
 	"net/http"
 
@@ -63,7 +64,7 @@ func streamChat(c *gin.Context) {
 
 	// 创建HTTP请求
 	client := &http.Client{}
-	apiReq, err := http.NewRequest("POST", BaseURL, bytes.NewBuffer(requestData))
+	apiReq, err := http.NewRequest("POST", constant.BaseURL, bytes.NewBuffer(requestData))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
 		return
