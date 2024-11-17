@@ -10,8 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/EthanGuo-coder/llm-backend-api/constant"
 	"github.com/EthanGuo-coder/llm-backend-api/models"
+	"github.com/EthanGuo-coder/llm-backend-api/utils"
 )
 
 func streamChat(c *gin.Context) {
@@ -53,7 +53,13 @@ func streamChat(c *gin.Context) {
 
 	// 创建HTTP请求
 	client := &http.Client{}
-	apiReq, err := http.NewRequest("POST", constant.BaseURL, bytes.NewBuffer(requestData))
+	baseURL, err := utils.GetBaseURL(req.Model)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	apiReq, err := http.NewRequest("POST", baseURL, bytes.NewBuffer(requestData))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
 		return
