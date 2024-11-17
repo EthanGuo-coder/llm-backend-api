@@ -23,7 +23,7 @@ Creates a new conversation with a given title and model.
 ```json
 {
     "title": "My New Conversation", // Title of the conversation
-    "model": "glm-4-air"           // Model used for the conversation
+    "model": "gpt-4o"           // Model used for the conversation
 }
 ```
 
