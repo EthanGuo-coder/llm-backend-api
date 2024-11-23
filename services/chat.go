@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/EthanGuo-coder/llm-backend-api/utils"
 	"io"
 	"net/http"
 
@@ -13,6 +12,7 @@ import (
 
 	"github.com/EthanGuo-coder/llm-backend-api/models"
 	"github.com/EthanGuo-coder/llm-backend-api/storage"
+	"github.com/EthanGuo-coder/llm-backend-api/utils"
 )
 
 // StreamSendMessage 处理流式消息发送
@@ -56,13 +56,26 @@ func StreamSendMessage(c *gin.Context, conversationID, apiKey, message string) e
 
 // getConversationWithMessage 获取会话并添加用户消息
 func getConversationWithMessage(conversationID, message string) (*models.Conversation, error) {
-	conversation, err := storage.GetConversation(conversationID)
-	if err != nil || conversation == nil {
-		return nil, fmt.Errorf("conversation not found")
+	// 从 Redis 获取会话消息
+	messages, err := storage.GetMessagesFromRedis(conversationID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load messages: %v", err)
 	}
-
+	// 构造会话对象
+	conversation := &models.Conversation{
+		ID:       conversationID,
+		Messages: messages,
+	}
+	// 追加用户消息
 	userMessage := models.Message{Role: "user", Content: message}
 	conversation.Messages = append(conversation.Messages, userMessage)
+
+	// 将用户消息追加到 Redis
+	err = storage.AppendMessageToRedis(conversationID, userMessage)
+	if err != nil {
+		return nil, fmt.Errorf("failed to append user message: %v", err)
+	}
+
 	return conversation, nil
 }
 
@@ -181,12 +194,15 @@ func sendMessageEvent(c *gin.Context, content string) {
 	c.Writer.Flush()
 }
 
-// saveConversationWithAIResponse 保存会话和 AI 回复
 func saveConversationWithAIResponse(conversation *models.Conversation, fullResponse string) error {
+	// 构造 AI 回复消息
 	aiMessage := models.Message{Role: "assistant", Content: fullResponse}
+
+	// 追加到会话记录
 	conversation.Messages = append(conversation.Messages, aiMessage)
 
-	return storage.SaveConversation(conversation)
+	// 保存到 Redis
+	return storage.AppendMessageToRedis(conversation.ID, aiMessage)
 }
 
 // sendStreamEndMessage 发送流结束消息

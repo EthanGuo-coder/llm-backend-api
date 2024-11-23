@@ -82,9 +82,13 @@ Sends a message to the specified conversation and streams the response from the 
 #### **Streamed Response Format**
 ```json
 {"event":"message", "data":"R"}
+
 {"event":"message", "data":"ust"}
+
 {"event":"message", "data":" 是一种系统编程语言，由 Graydon Hoare 设计..."}
+
 {"event":"done", "data":"Stream finished"}
+
 {"event":"full_response", "data":"Complete AI response in a single message."}
 ```
 

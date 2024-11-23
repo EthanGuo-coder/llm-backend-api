@@ -8,6 +8,16 @@ import (
 )
 
 func main() {
+	// 初始化 SQLite 数据库
+	dbPath := "llm_backend.db"
+	storage.InitializeSQLite(dbPath)
+
+	// 初始化 Redis
+	redisAddr := "localhost:6379"
+	redisPassword := ""
+	redisDB := 0
+	storage.InitializeRedis(redisAddr, redisPassword, redisDB)
+
 	// 初始化 Redis 存储
 	storage.InitializeRedis("localhost:6379", "", 0)
 
