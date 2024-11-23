@@ -26,6 +26,7 @@ func main() {
 
 	routes.RegisterConversationRoutes(r)
 	routes.RegisterChatRoutes(r)
+	routes.RegisterUserRoutes(r)
 
 	// 启动服务器
 	r.Run(":8080") // 启动在8080端口

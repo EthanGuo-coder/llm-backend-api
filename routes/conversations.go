@@ -14,8 +14,8 @@ import (
 func RegisterConversationRoutes(r *gin.Engine) {
 	group := r.Group("/api/conversations")
 	{
-		group.POST("/create", createConversation)
-		group.GET("/history/:conversation_id", getConversationHistory)
+		group.POST("/create", middleware.AuthMiddleware(), createConversation)
+		group.GET("/history/:conversation_id", middleware.AuthMiddleware(), getConversationHistory)
 
 		group.GET("/list", middleware.AuthMiddleware(), getUserConversations)
 		group.POST("/del/:conversation_id", middleware.AuthMiddleware(), deleteConversation)

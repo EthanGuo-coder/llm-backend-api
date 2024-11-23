@@ -56,15 +56,10 @@ func StreamSendMessage(c *gin.Context, conversationID, apiKey, message string) e
 
 // getConversationWithMessage 获取会话并添加用户消息
 func getConversationWithMessage(conversationID, message string) (*models.Conversation, error) {
-	// 从 Redis 获取会话消息
-	messages, err := storage.GetMessagesFromRedis(conversationID)
+	// 构造会话对象
+	conversation, err := storage.GetConversationFromRedis(conversationID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load messages: %v", err)
-	}
-	// 构造会话对象
-	conversation := &models.Conversation{
-		ID:       conversationID,
-		Messages: messages,
 	}
 	// 追加用户消息
 	userMessage := models.Message{Role: "user", Content: message}

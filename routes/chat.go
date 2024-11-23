@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/EthanGuo-coder/llm-backend-api/middleware"
 	"github.com/EthanGuo-coder/llm-backend-api/models"
 	"github.com/EthanGuo-coder/llm-backend-api/services"
 )
@@ -12,7 +13,7 @@ import (
 func RegisterChatRoutes(r *gin.Engine) {
 	group := r.Group("/api/chat/:conversation_id")
 	{
-		group.POST("/", streamSendMessage) // 流式返回消息
+		group.POST("/", middleware.AuthMiddleware(), streamSendMessage) // 流式返回消息
 	}
 }
 
