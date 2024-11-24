@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/EthanGuo-coder/llm-backend-api/utils"
 	"io"
 	"net/http"
 
@@ -13,10 +12,11 @@ import (
 
 	"github.com/EthanGuo-coder/llm-backend-api/models"
 	"github.com/EthanGuo-coder/llm-backend-api/storage"
+	"github.com/EthanGuo-coder/llm-backend-api/utils"
 )
 
 // StreamSendMessage 处理流式消息发送
-func StreamSendMessage(c *gin.Context, conversationID, apiKey, message string) error {
+func StreamSendMessage(c *gin.Context, conversationID int64, message string) error {
 	// 获取会话
 	conversation, err := getConversationWithMessage(conversationID, message)
 	if err != nil {
@@ -27,6 +27,8 @@ func StreamSendMessage(c *gin.Context, conversationID, apiKey, message string) e
 	if err != nil {
 		return err
 	}
+	// 使用存储的 api_key
+	apiKey := conversation.ApiKey
 	// 创建 HTTP 请求
 	resp, err := sendAPIRequest(apiKey, requestData, conversation.Model)
 	if err != nil {
@@ -55,14 +57,29 @@ func StreamSendMessage(c *gin.Context, conversationID, apiKey, message string) e
 }
 
 // getConversationWithMessage 获取会话并添加用户消息
-func getConversationWithMessage(conversationID, message string) (*models.Conversation, error) {
-	conversation, err := storage.GetConversation(conversationID)
-	if err != nil || conversation == nil {
+func getConversationWithMessage(conversationID int64, message string) (*models.Conversation, error) {
+	// 从 Redis 获取会话
+	conversation, err := storage.GetConversationFromRedis(conversationID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load conversation: %v", err)
+	}
+	if conversation == nil {
 		return nil, fmt.Errorf("conversation not found")
 	}
-
-	userMessage := models.Message{Role: "user", Content: message}
+	// 追加用户消息
+	userMessage := models.Message{
+		Role:      "user",
+		Content:   message,
+		MessageID: int32(len(conversation.Messages)),
+	}
 	conversation.Messages = append(conversation.Messages, userMessage)
+
+	// 将用户消息追加到 Redis
+	err = storage.SaveConversationToRedis(conversation)
+	if err != nil {
+		return nil, fmt.Errorf("failed to append user message: %v", err)
+	}
+
 	return conversation, nil
 }
 
@@ -143,6 +160,8 @@ func handleSSEStream(c *gin.Context, body io.Reader) (string, error) {
 		}
 	}
 
+	// 发送流式完成消息
+	sendSSEEvent(c, "done", "Stream finished")
 	return fullResponse, nil
 }
 
@@ -150,43 +169,35 @@ func handleSSEStream(c *gin.Context, body io.Reader) (string, error) {
 func processSSEData(c *gin.Context, data []byte, fullResponse string) (string, error) {
 	var sseResponse *models.SSEResponse
 	if err := json.Unmarshal(data, &sseResponse); err != nil {
-		sendErrorMessage(c, fmt.Sprintf("Failed to unmarshal SSE data: %v", err))
+		sendSSEEvent(c, "error", fmt.Sprintf("Failed to unmarshal SSE data: %v", err))
 		return fullResponse, nil
 	}
+
 	for _, choice := range sseResponse.Choices {
 		content := choice.Delta.Content
 		fullResponse += content
-		sendMessageEvent(c, content)
+		sendSSEEvent(c, "message", content)
 	}
 	return fullResponse, nil
 }
 
-// sendErrorMessage 发送错误消息到客户端
-func sendErrorMessage(c *gin.Context, message string) {
-	errorMessage, _ := json.Marshal(map[string]string{
-		"event": "error",
-		"data":  message,
-	})
-	fmt.Fprintf(c.Writer, "%s\n\n", errorMessage)
-	c.Writer.Flush()
-}
-
-// sendMessageEvent 发送消息事件到客户端
-func sendMessageEvent(c *gin.Context, content string) {
+// sendSSEEvent 发送 SSE 消息到客户端
+func sendSSEEvent(c *gin.Context, event, data string) {
 	message, _ := json.Marshal(map[string]string{
-		"event": "message",
-		"data":  content,
+		"event": event,
+		"data":  data,
 	})
 	fmt.Fprintf(c.Writer, "%s\n\n", message)
 	c.Writer.Flush()
 }
 
-// saveConversationWithAIResponse 保存会话和 AI 回复
 func saveConversationWithAIResponse(conversation *models.Conversation, fullResponse string) error {
-	aiMessage := models.Message{Role: "assistant", Content: fullResponse}
+	// 构造 AI 回复消息
+	aiMessage := models.Message{Role: "assistant", Content: fullResponse, MessageID: int32(len(conversation.Messages))}
+	// 追加到会话记录
 	conversation.Messages = append(conversation.Messages, aiMessage)
-
-	return storage.SaveConversation(conversation)
+	// 保存对话记录到 Redis
+	return storage.SaveConversationToRedis(conversation)
 }
 
 // sendStreamEndMessage 发送流结束消息
