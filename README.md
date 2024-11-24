@@ -1,26 +1,32 @@
-# llm-backend-api
+# 🤖 llm-backend-api
+
+#### 🚀 A Robust and Scalable Backend Solution for Large Language Models
+
+#### *"llm-backend-api > [Gin Framework](https://github.com/gin-gonic/gin) + [Redis](https://redis.io)"*
+
+🌐 [English](./README.md) · [简体中文](./README_zh-CN.md)
 
 ## Overview
 
-`llm-backend-api` is a robust and scalable backend solution designed to facilitate seamless interactions with large language models (LLMs). Leveraging the power of Golang and Redis, this project offers a clear and user-friendly API for managing conversations, handling user authentication, and streaming chat responses from AI models. Whether you're building a chatbot, an interactive assistant, or any application requiring intelligent dialogue capabilities, `llm-backend-api` provides the necessary tools to manage and streamline these interactions efficiently.
+`llm-backend-api` is a **robust** and **scalable** backend solution designed to facilitate seamless interactions with large language models (LLMs). Leveraging the power of **Golang** and **Redis**, this project offers a clear and user-friendly API for managing conversations, handling user authentication, and streaming chat responses from AI models. Whether you're building a chatbot, an interactive assistant, or any application requiring intelligent dialogue capabilities, `llm-backend-api` provides the necessary tools to manage and streamline these interactions efficiently.
 
-## Highlights
+## 🌟 Highlights
 
-- **Clear and Usable API**: Intuitive endpoints for managing conversations, users, and streaming chat messages.
-- **Scalable Architecture**: Built with Golang and Redis to ensure high performance and scalability.
-- **Secure Authentication**: Robust JWT-based authentication to protect user data and interactions.
-- **Streaming Responses**: Efficiently stream AI responses in real-time, enhancing user experience.
-- **Flexible Configuration**: Easily configurable through YAML files to suit various deployment environments.
-- **Persistent Storage**: Utilizes SQLite for reliable data persistence and Redis for fast access to session data.
+- **✨ Clear and Usable API**: Intuitive endpoints for managing conversations, users, and streaming chat messages.
+- **⚡ Scalable Architecture**: Built with Golang and Redis to ensure high performance and scalability.
+- **🔒 Secure Authentication**: Robust JWT-based authentication to protect user data and interactions.
+- **📡 Streaming Responses**: Efficiently stream AI responses in real-time, enhancing user experience.
+- **🛠️ Flexible Configuration**: Easily configurable through YAML files to suit various deployment environments.
+- **💾 Persistent Storage**: Utilizes SQLite for reliable data persistence and Redis for fast access to session data.
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-- **Language**: Golang
-- **Framework**: Gin
-- **Database**: SQLite
-- **Cache**: Redis
-- **Authentication**: JWT (JSON Web Tokens)
-- **Password Security**: bcrypt
+- **📝 Language**: Golang
+- **🏗️ Framework**: Gin
+- **🗄️ Database**: SQLite
+- **⚙️ Cache**: Redis
+- **🔑 Authentication**: JWT (JSON Web Tokens)
+- **🔐 Password Security**: bcrypt
 
 ---
 
@@ -514,4 +520,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Contact
 
-For any inquiries or support, please contact [Ethan Guo](mailto:ethan@example.com).
+For any inquiries or support, please contact [Ethan Guo](mailto:ethanguo2003@163.com).
