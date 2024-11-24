@@ -66,7 +66,7 @@ func getConversationWithMessage(conversationID, message string) (*models.Convers
 	conversation.Messages = append(conversation.Messages, userMessage)
 
 	// 将用户消息追加到 Redis
-	err = storage.AppendMessageToRedis(conversationID, userMessage)
+	err = storage.SaveConversationToRedis(conversation)
 	if err != nil {
 		return nil, fmt.Errorf("failed to append user message: %v", err)
 	}
@@ -151,6 +151,8 @@ func handleSSEStream(c *gin.Context, body io.Reader) (string, error) {
 		}
 	}
 
+	// 发送流式完成消息
+	sendSSEEvent(c, "done", "Stream finished")
 	return fullResponse, nil
 }
 
@@ -158,32 +160,23 @@ func handleSSEStream(c *gin.Context, body io.Reader) (string, error) {
 func processSSEData(c *gin.Context, data []byte, fullResponse string) (string, error) {
 	var sseResponse *models.SSEResponse
 	if err := json.Unmarshal(data, &sseResponse); err != nil {
-		sendErrorMessage(c, fmt.Sprintf("Failed to unmarshal SSE data: %v", err))
+		sendSSEEvent(c, "error", fmt.Sprintf("Failed to unmarshal SSE data: %v", err))
 		return fullResponse, nil
 	}
+
 	for _, choice := range sseResponse.Choices {
 		content := choice.Delta.Content
 		fullResponse += content
-		sendMessageEvent(c, content)
+		sendSSEEvent(c, "message", content)
 	}
 	return fullResponse, nil
 }
 
-// sendErrorMessage 发送错误消息到客户端
-func sendErrorMessage(c *gin.Context, message string) {
-	errorMessage, _ := json.Marshal(map[string]string{
-		"event": "error",
-		"data":  message,
-	})
-	fmt.Fprintf(c.Writer, "%s\n\n", errorMessage)
-	c.Writer.Flush()
-}
-
-// sendMessageEvent 发送消息事件到客户端
-func sendMessageEvent(c *gin.Context, content string) {
+// sendSSEEvent 发送 SSE 消息到客户端
+func sendSSEEvent(c *gin.Context, event, data string) {
 	message, _ := json.Marshal(map[string]string{
-		"event": "message",
-		"data":  content,
+		"event": event,
+		"data":  data,
 	})
 	fmt.Fprintf(c.Writer, "%s\n\n", message)
 	c.Writer.Flush()
@@ -192,12 +185,10 @@ func sendMessageEvent(c *gin.Context, content string) {
 func saveConversationWithAIResponse(conversation *models.Conversation, fullResponse string) error {
 	// 构造 AI 回复消息
 	aiMessage := models.Message{Role: "assistant", Content: fullResponse}
-
 	// 追加到会话记录
 	conversation.Messages = append(conversation.Messages, aiMessage)
-
-	// 保存到 Redis
-	return storage.AppendMessageToRedis(conversation.ID, aiMessage)
+	// 保存对话记录到 Redis
+	return storage.SaveConversationToRedis(conversation)
 }
 
 // sendStreamEndMessage 发送流结束消息

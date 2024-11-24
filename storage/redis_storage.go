@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 
+	"github.com/EthanGuo-coder/llm-backend-api/config"
 	"github.com/EthanGuo-coder/llm-backend-api/models"
 )
 
@@ -14,19 +16,20 @@ var redisClient *redis.Client
 var ctx = context.Background()
 
 // InitializeRedis 初始化 Redis 客户端
-func InitializeRedis(addr, password string, db int) {
+func InitializeRedis() error {
+	cfg := config.AppConfig.Redis
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: password,
-		DB:       db,
+		Addr:     cfg.Address,
+		Password: cfg.Password,
+		DB:       cfg.DB,
 	})
-
 	// 测试连接
 	_, err := redisClient.Ping(ctx).Result()
 	if err != nil {
-		panic(fmt.Sprintf("Failed to connect to Redis: %v", err))
+		return fmt.Errorf("failed to connect to Redis: %w", err)
 	}
 	fmt.Println("Connected to Redis successfully!")
+	return nil
 }
 
 // SaveConversationToRedis 保存完整会话到 Redis
@@ -62,29 +65,34 @@ func DeleteConversationFromRedis(conversationID string) error {
 	return redisClient.Del(ctx, conversationKey).Err()
 }
 
-// AppendMessageToRedis 追加消息到 Redis 中
-func AppendMessageToRedis(conversationID string, message models.Message) error {
-	key := fmt.Sprintf("conversation:%s:messages", conversationID)
-	messageData, err := json.Marshal(message)
-	if err != nil {
-		return fmt.Errorf("failed to marshal message: %v", err)
+// CacheJWT 将 Token 存入 Redis
+func CacheJWT(tokenStr string, userID int64, ttl time.Duration) error {
+	key := fmt.Sprintf("jwt:%s", tokenStr)
+	value := map[string]interface{}{
+		"user_id": userID,
 	}
-	return redisClient.RPush(ctx, key, messageData).Err()
+	data, err := json.Marshal(value)
+	if err != nil {
+		return fmt.Errorf("failed to marshal token data: %w", err)
+	}
+
+	return redisClient.Set(ctx, key, data, ttl).Err()
 }
 
-// GetMessagesFromRedis 从 Redis 获取会话消息列表
-func GetMessagesFromRedis(conversationID string) ([]models.Message, error) {
-	key := fmt.Sprintf("conversation:%s:messages", conversationID)
-	data, err := redisClient.LRange(ctx, key, 0, -1).Result()
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch messages: %v", err)
+// GetCachedJWT 从 Redis 中获取缓存的 Token
+func GetCachedJWT(tokenStr string) (map[string]interface{}, error) {
+	key := fmt.Sprintf("jwt:%s", tokenStr)
+	data, err := redisClient.Get(ctx, key).Result()
+	if err == redis.Nil {
+		return nil, nil // 未命中缓存
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to get token from redis: %w", err)
 	}
 
-	messages := make([]models.Message, len(data))
-	for i, item := range data {
-		if err := json.Unmarshal([]byte(item), &messages[i]); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal message: %v", err)
-		}
+	var value map[string]interface{}
+	if err := json.Unmarshal([]byte(data), &value); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal token data: %w", err)
 	}
-	return messages, nil
+
+	return value, nil
 }

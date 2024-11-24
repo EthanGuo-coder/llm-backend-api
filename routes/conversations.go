@@ -14,11 +14,11 @@ import (
 func RegisterConversationRoutes(r *gin.Engine) {
 	group := r.Group("/api/conversations")
 	{
-		group.POST("/create", middleware.AuthMiddleware(), createConversation)
-		group.GET("/history/:conversation_id", middleware.AuthMiddleware(), getConversationHistory)
+		group.POST("/create", middleware.AuthMiddleware(), createConversation)                      // 创建新会话
+		group.GET("/history/:conversation_id", middleware.AuthMiddleware(), getConversationHistory) // 用户单会话对话记录
 
-		group.GET("/list", middleware.AuthMiddleware(), getUserConversations)
-		group.POST("/del/:conversation_id", middleware.AuthMiddleware(), deleteConversation)
+		group.GET("/list", middleware.AuthMiddleware(), getUserConversations)                // 用户会话列表
+		group.POST("/del/:conversation_id", middleware.AuthMiddleware(), deleteConversation) // 删除用户会话（某一个）
 	}
 }
 

@@ -73,33 +73,9 @@ func DeleteUserConversation(userID int64, conversationID string) error {
 
 // GetUserConversations 查询用户的所有对话
 func GetUserConversations(userID int64) ([]models.Conversation, error) {
-	db := storage.GetDB()
-
-	query := `
-        SELECT id, title 
-        FROM conversations 
-        WHERE user_id = ? 
-        ORDER BY ROWID DESC;
-    `
-
-	rows, err := db.Query(query, userID)
+	conversations, err := storage.FetchConversationsByUserID(userID)
 	if err != nil {
 		return nil, errors.New("failed to fetch conversations: " + err.Error())
 	}
-	defer rows.Close()
-
-	var conversations []models.Conversation
-	for rows.Next() {
-		var conversation models.Conversation
-		if err := rows.Scan(&conversation.ID, &conversation.Title); err != nil {
-			return nil, errors.New("failed to scan conversation: " + err.Error())
-		}
-		conversations = append(conversations, conversation)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, errors.New("row iteration error: " + err.Error())
-	}
-
 	return conversations, nil
 }

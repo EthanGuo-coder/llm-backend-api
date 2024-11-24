@@ -1,0 +1,14 @@
+# config.yaml
+server:
+  port: ":8080"
+
+redis:
+  address: "localhost:6379"
+  password: ""
+  db: 0
+
+sqlite:
+  path: "./llm_backend.db"
+
+jwt:
+  secret: "S3cureK3y#2024!AIsafety"

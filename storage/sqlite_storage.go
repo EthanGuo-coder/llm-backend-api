@@ -3,6 +3,7 @@ package storage
 import (
 	"errors"
 	"fmt"
+	"github.com/EthanGuo-coder/llm-backend-api/config"
 	"os"
 
 	"database/sql"
@@ -19,47 +20,73 @@ func GetDB() *sql.DB {
 	return db
 }
 
-func InitializeSQLite(dbPath string) {
+// InitializeSQLite 初始化 SQLite 数据库
+func InitializeSQLite() error {
+	dbPath := config.AppConfig.SQLite.Path
+
 	// 确保父目录存在
 	dir := filepath.Dir(dbPath)
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		err := os.MkdirAll(dir, os.ModePerm)
-		if err != nil {
-			panic(fmt.Sprintf("Failed to create directory for database: %v", err))
-		}
+	if err := ensureDirectoryExists(dir); err != nil {
+		return fmt.Errorf("failed to ensure directory exists: %w", err)
 	}
 
 	// 打开数据库
 	var err error
 	db, err = sql.Open("sqlite3", dbPath)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to connect to SQLite: %v", err))
+		return fmt.Errorf("failed to connect to SQLite: %w", err)
 	}
 
-	createUserTable := `
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL
-    );`
+	// 设置数据库连接属性
+	db.SetMaxOpenConns(10)   // 最大连接数
+	db.SetMaxIdleConns(5)    // 最大空闲连接数
+	db.SetConnMaxLifetime(0) // 禁止自动关闭连接
 
-	createConversationTable := `
-    CREATE TABLE IF NOT EXISTS conversations (
-        id TEXT PRIMARY KEY,
-        title TEXT NOT NULL,
-        user_id INTEGER NOT NULL,
-        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-    );`
+	// 初始化表
+	if err := createTables(db); err != nil {
+		return fmt.Errorf("failed to create tables: %w", err)
+	}
 
-	_, err = db.Exec(createUserTable)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to create users table: %v", err))
-	}
-	_, err = db.Exec(createConversationTable)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to create conversations table: %v", err))
-	}
 	fmt.Println("SQLite initialized successfully!")
+	return nil
+}
+
+// ensureDirectoryExists 确保目录存在
+func ensureDirectoryExists(dir string) error {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			return fmt.Errorf("failed to create directory: %w", err)
+		}
+	}
+	return nil
+}
+
+// createTables 创建所需的表
+func createTables(db *sql.DB) error {
+	tableSchemas := []string{
+		`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        );
+        `,
+		`
+        CREATE TABLE IF NOT EXISTS conversations (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            user_id INTEGER NOT NULL,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+        `,
+	}
+
+	for _, schema := range tableSchemas {
+		if _, err := db.Exec(schema); err != nil {
+			return fmt.Errorf("failed to execute schema: %w", err)
+		}
+	}
+	return nil
 }
 
 // SaveConversationToDB 将会话保存到数据库
@@ -91,4 +118,34 @@ func DeleteConversationFromDB(userID int64, conversationID string) error {
 	}
 
 	return nil
+}
+
+// FetchConversationsByUserID 从数据库中获取指定用户的所有会话
+func FetchConversationsByUserID(userID int64) ([]models.Conversation, error) {
+	db := GetDB()
+	query := `
+        SELECT id, title 
+        FROM conversations 
+        WHERE user_id = ? 
+        ORDER BY ROWID DESC;
+    `
+	rows, err := db.Query(query, userID)
+	if err != nil {
+		return nil, errors.New("failed to fetch conversations: " + err.Error())
+	}
+	defer rows.Close()
+
+	var conversations []models.Conversation
+	for rows.Next() {
+		var conversation models.Conversation
+		if err := rows.Scan(&conversation.ID, &conversation.Title); err != nil {
+			return nil, errors.New("failed to scan conversation: " + err.Error())
+		}
+		conversations = append(conversations, conversation)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, errors.New("row iteration error: " + err.Error())
+	}
+
+	return conversations, nil
 }
