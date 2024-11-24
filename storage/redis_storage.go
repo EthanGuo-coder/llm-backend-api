@@ -34,7 +34,7 @@ func InitializeRedis() error {
 
 // SaveConversationToRedis 保存完整会话到 Redis
 func SaveConversationToRedis(conversation *models.Conversation) error {
-	conversationKey := fmt.Sprintf("conversation:%s", conversation.ID)
+	conversationKey := GenerateRedisKeyConversation(conversation.ID)
 	data, err := json.Marshal(conversation)
 	if err != nil {
 		return fmt.Errorf("failed to marshal conversation: %v", err)
@@ -44,7 +44,7 @@ func SaveConversationToRedis(conversation *models.Conversation) error {
 
 // GetConversationFromRedis 从 Redis 获取完整会话
 func GetConversationFromRedis(conversationID string) (*models.Conversation, error) {
-	conversationKey := fmt.Sprintf("conversation:%s", conversationID)
+	conversationKey := GenerateRedisKeyConversation(conversationID)
 	data, err := redisClient.Get(ctx, conversationKey).Result()
 	if err == redis.Nil {
 		return nil, nil // 会话不存在
@@ -61,13 +61,13 @@ func GetConversationFromRedis(conversationID string) (*models.Conversation, erro
 
 // DeleteConversationFromRedis 从 Redis 中删除完整会话
 func DeleteConversationFromRedis(conversationID string) error {
-	conversationKey := fmt.Sprintf("conversation:%s", conversationID)
+	conversationKey := GenerateRedisKeyConversation(conversationID)
 	return redisClient.Del(ctx, conversationKey).Err()
 }
 
 // CacheJWT 将 Token 存入 Redis
 func CacheJWT(tokenStr string, userID int64, ttl time.Duration) error {
-	key := fmt.Sprintf("jwt:%s", tokenStr)
+	key := GenerateRedisKeyJWT(tokenStr)
 	value := map[string]interface{}{
 		"user_id": userID,
 	}
@@ -81,7 +81,7 @@ func CacheJWT(tokenStr string, userID int64, ttl time.Duration) error {
 
 // GetCachedJWT 从 Redis 中获取缓存的 Token
 func GetCachedJWT(tokenStr string) (map[string]interface{}, error) {
-	key := fmt.Sprintf("jwt:%s", tokenStr)
+	key := GenerateRedisKeyJWT(tokenStr)
 	data, err := redisClient.Get(ctx, key).Result()
 	if err == redis.Nil {
 		return nil, nil // 未命中缓存

@@ -25,7 +25,7 @@ func LoadConfig(configPath string) error {
 	}
 
 	// 解析配置到结构体
-	AppConfig = &Config{}
+	AppConfig = &models.Config{}
 	if err := viper.Unmarshal(AppConfig); err != nil {
 		return fmt.Errorf("failed to parse configuration file: %w", err)
 	}

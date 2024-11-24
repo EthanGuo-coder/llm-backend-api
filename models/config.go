@@ -12,7 +12,10 @@ type Config struct {
 	} `mapstructure:"redis"`
 
 	SQLite struct {
-		Path string `mapstructure:"path"`
+		Path            string `mapstructure:"path"`
+		MaxOpenConns    int    `mapstructure:"max_open_conns"`
+		MaxIdleConns    int    `mapstructure:"max_idle_conns"`
+		ConnMaxLifetime int    `mapstructure:"conn_max_lifetime"` // 秒
 	} `mapstructure:"sqlite"`
 
 	JWT struct {
