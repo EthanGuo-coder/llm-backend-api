@@ -3,7 +3,7 @@ package models
 type Message struct {
 	Role      string `json:"role"`
 	Content   string `json:"content"`
-	MessageID int32  `json:"id"`
+	MessageID int32  `json:"message_id"`
 }
 
 type Conversation struct {
