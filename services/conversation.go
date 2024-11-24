@@ -11,7 +11,7 @@ import (
 )
 
 // CreateConversation 创建新的会话
-func CreateConversation(userID int64, title, model, apiKey string) (*models.Conversation, error) {
+func CreateConversation(userID int64, title, model, apiKey string) (*models.CreateConversationResp, error) {
 	// 生成唯一会话 ID
 	conversationID := utils.GenerateID()
 
@@ -39,7 +39,15 @@ func CreateConversation(userID int64, title, model, apiKey string) (*models.Conv
 		return nil, errors.New("failed to save conversation to redis: " + err.Error())
 	}
 
-	return conversation, nil
+	conversationResp := &models.CreateConversationResp{
+		ID:          conversationID,
+		Title:       title,
+		Model:       model,
+		ApiKey:      apiKey,
+		CreatedTime: time.Now().Unix(),
+	}
+
+	return conversationResp, nil
 }
 
 // GetConversationHistory 获取完整的会话历史

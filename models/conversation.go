@@ -9,7 +9,7 @@ type Conversation struct {
 	ID          string    `json:"conversation_id"`
 	Title       string    `json:"title"`
 	Model       string    `json:"model"`
-	ApiKey      string    `json:"api_key"` // 新增字段
+	ApiKey      string    `json:"api_key"`
 	Messages    []Message `json:"messages"`
 	CreatedTime int64     `json:"created_time"` // Unix 时间戳
 }
@@ -36,4 +36,12 @@ type CreateConversationReq struct {
 	Model  string `json:"model" binding:"required"`
 	Title  string `json:"title" binding:"required"`
 	ApiKey string `json:"api_key" binding:"required"`
+}
+
+type CreateConversationResp struct {
+	ID          string `json:"conversation_id"`
+	Title       string `json:"title"`
+	Model       string `json:"model"`
+	ApiKey      string `json:"api_key"`
+	CreatedTime int64  `json:"created_time"` // Unix 时间戳
 }
