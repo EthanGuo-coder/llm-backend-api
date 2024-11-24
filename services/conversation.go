@@ -22,7 +22,7 @@ func CreateConversation(userID int64, title, model, apiKey string) (*models.Crea
 		Model:  model,
 		ApiKey: apiKey, // 存储 api_key
 		Messages: []models.Message{
-			{Role: "system", Content: constant.SystemPrompt},
+			{Role: "system", Content: constant.SystemPrompt, MessageID: 0},
 		},
 		CreatedTime: time.Now().Unix(),
 	}
@@ -51,7 +51,7 @@ func CreateConversation(userID int64, title, model, apiKey string) (*models.Crea
 }
 
 // GetConversationHistory 获取完整的会话历史
-func GetConversationHistory(conversationID string) (*models.ConversationHistory, error) {
+func GetConversationHistory(conversationID int64) (*models.ConversationHistory, error) {
 	// 从 Redis 获取完整会话的记录
 	conversation, err := storage.GetConversationFromRedis(conversationID)
 	if err != nil {
@@ -81,7 +81,7 @@ func GetConversationHistory(conversationID string) (*models.ConversationHistory,
 }
 
 // DeleteUserConversation 删除指定的用户对话
-func DeleteUserConversation(userID int64, conversationID string) error {
+func DeleteUserConversation(userID int64, conversationID int64) error {
 	// 从数据库删除会话元信息
 	err := storage.DeleteConversationFromDB(userID, conversationID)
 	if err != nil {

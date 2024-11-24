@@ -1,12 +1,13 @@
 package models
 
 type Message struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
+	Role      string `json:"role"`
+	Content   string `json:"content"`
+	MessageID int32  `json:"id"`
 }
 
 type Conversation struct {
-	ID          string    `json:"conversation_id"`
+	ID          int64     `json:"conversation_id"`
 	Title       string    `json:"title"`
 	Model       string    `json:"model"`
 	ApiKey      string    `json:"api_key"`
@@ -15,13 +16,13 @@ type Conversation struct {
 }
 
 type ConversationSummary struct {
-	ID          string `json:"conversation_id"`
+	ID          int64  `json:"conversation_id"`
 	Title       string `json:"title"`
 	CreatedTime int64  `json:"created_time"`
 }
 
 type ConversationHistory struct {
-	ID       string    `json:"conversation_id"`
+	ID       int64     `json:"conversation_id"`
 	Title    string    `json:"title"`
 	Model    string    `json:"model"`
 	Messages []Message `json:"messages"`
@@ -39,7 +40,7 @@ type CreateConversationReq struct {
 }
 
 type CreateConversationResp struct {
-	ID          string `json:"conversation_id"`
+	ID          int64  `json:"conversation_id"`
 	Title       string `json:"title"`
 	Model       string `json:"model"`
 	ApiKey      string `json:"api_key"`

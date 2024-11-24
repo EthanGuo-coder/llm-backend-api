@@ -1,12 +1,11 @@
 package utils
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 )
 
-func GenerateID() string {
+func GenerateID() int64 {
 	rand.Seed(time.Now().UnixNano())
-	return fmt.Sprintf("%06d", rand.Intn(1000000))
+	return int64(rand.Intn(1000000)) // 返回随机生成的 int64 类型
 }

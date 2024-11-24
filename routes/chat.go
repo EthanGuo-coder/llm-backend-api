@@ -2,6 +2,7 @@ package routes
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -18,7 +19,15 @@ func RegisterChatRoutes(r *gin.Engine) {
 }
 
 func streamSendMessage(c *gin.Context) {
-	conversationID := c.Param("conversation_id")
+	conversationIDStr := c.Param("conversation_id")
+
+	// 将字符串转换为 int64
+	conversationID, err := strconv.ParseInt(conversationIDStr, 10, 64)
+	if err != nil {
+		// 处理转换错误（例如：参数不是有效的数字）
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid conversation ID"})
+		return
+	}
 
 	var req *models.AskReq
 	if err := c.ShouldBindJSON(&req); err != nil {

@@ -43,7 +43,7 @@ func SaveConversationToRedis(conversation *models.Conversation) error {
 }
 
 // GetConversationFromRedis 从 Redis 获取完整会话
-func GetConversationFromRedis(conversationID string) (*models.Conversation, error) {
+func GetConversationFromRedis(conversationID int64) (*models.Conversation, error) {
 	conversationKey := GenerateRedisKeyConversation(conversationID)
 	data, err := redisClient.Get(ctx, conversationKey).Result()
 	if err == redis.Nil {
@@ -60,7 +60,7 @@ func GetConversationFromRedis(conversationID string) (*models.Conversation, erro
 }
 
 // DeleteConversationFromRedis 从 Redis 中删除完整会话
-func DeleteConversationFromRedis(conversationID string) error {
+func DeleteConversationFromRedis(conversationID int64) error {
 	conversationKey := GenerateRedisKeyConversation(conversationID)
 	return redisClient.Del(ctx, conversationKey).Err()
 }

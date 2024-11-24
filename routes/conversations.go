@@ -1,12 +1,13 @@
 package routes
 
 import (
-	"github.com/EthanGuo-coder/llm-backend-api/models"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/EthanGuo-coder/llm-backend-api/middleware"
+	"github.com/EthanGuo-coder/llm-backend-api/models"
 	"github.com/EthanGuo-coder/llm-backend-api/services"
 	"github.com/EthanGuo-coder/llm-backend-api/utils"
 )
@@ -48,7 +49,14 @@ func createConversation(c *gin.Context) {
 }
 
 func getConversationHistory(c *gin.Context) {
-	conversationID := c.Param("conversation_id")
+	conversationIDStr := c.Param("conversation_id")
+	// 将字符串转换为 int64
+	conversationID, err := strconv.ParseInt(conversationIDStr, 10, 64)
+	if err != nil {
+		// 处理转换错误（例如：参数不是有效的数字）
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid conversation ID"})
+		return
+	}
 	history, err := services.GetConversationHistory(conversationID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Conversation not found"})
@@ -69,7 +77,14 @@ func getUserConversations(c *gin.Context) {
 }
 
 func deleteConversation(c *gin.Context) {
-	conversationID := c.Param("conversation_id")
+	conversationIDStr := c.Param("conversation_id")
+	// 将字符串转换为 int64
+	conversationID, err := strconv.ParseInt(conversationIDStr, 10, 64)
+	if err != nil {
+		// 处理转换错误（例如：参数不是有效的数字）
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid conversation ID"})
+		return
+	}
 	userID := utils.GetUserIDFromContext(c)
 
 	if err := services.DeleteUserConversation(userID, conversationID); err != nil {

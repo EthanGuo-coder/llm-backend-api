@@ -83,7 +83,7 @@ func SaveConversationToDB(userID int64, conversation *models.Conversation) error
 	db := GetDB()
 	// 插入会话记录到数据库
 	query := InsertConversation
-	_, err := db.Exec(query, conversation.ID, conversation.Title, userID)
+	_, err := db.Exec(query, conversation.ID, conversation.Title, userID, conversation.CreatedTime) // 添加 CreatedTime
 	if err != nil {
 		return errors.New("failed to insert conversation: " + err.Error())
 	}
@@ -91,7 +91,7 @@ func SaveConversationToDB(userID int64, conversation *models.Conversation) error
 }
 
 // DeleteConversationFromDB 从数据库中删除会话元信息
-func DeleteConversationFromDB(userID int64, conversationID string) error {
+func DeleteConversationFromDB(userID int64, conversationID int64) error {
 	db := GetDB()
 
 	query := DeleteConversation
@@ -104,7 +104,7 @@ func DeleteConversationFromDB(userID int64, conversationID string) error {
 }
 
 // FetchConversationsByUserID 从数据库中获取指定用户的所有会话
-func FetchConversationsByUserID(userID int64) ([]models.Conversation, error) {
+func FetchConversationsByUserID(userID int64) ([]*models.Conversation, error) {
 	db := GetDB()
 	query := FetchConversations
 	rows, err := db.Query(query, userID)
@@ -113,13 +113,13 @@ func FetchConversationsByUserID(userID int64) ([]models.Conversation, error) {
 	}
 	defer rows.Close()
 
-	var conversations []models.Conversation
+	var conversations []*models.Conversation
 	for rows.Next() {
 		var conversation models.Conversation
-		if err := rows.Scan(&conversation.ID, &conversation.Title); err != nil {
+		if err := rows.Scan(&conversation.ID, &conversation.Title, &conversation.CreatedTime); err != nil {
 			return nil, errors.New("failed to scan conversation: " + err.Error())
 		}
-		conversations = append(conversations, conversation)
+		conversations = append(conversations, &conversation)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, errors.New("row iteration error: " + err.Error())

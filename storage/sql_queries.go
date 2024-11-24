@@ -10,24 +10,25 @@ const (
         );`
 
 	CreateTableConversations = `
-        CREATE TABLE IF NOT EXISTS conversations (
-            id TEXT PRIMARY KEY,
-            title TEXT NOT NULL,
-            user_id INTEGER NOT NULL,
-            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-        );`
+		CREATE TABLE IF NOT EXISTS conversations (
+			id TEXT PRIMARY KEY,
+			title TEXT NOT NULL,
+			user_id INTEGER NOT NULL,
+			create_time INTEGER NOT NULL, -- 添加创建时间字段，存储 Unix 时间戳
+			FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+		);`
 
 	InsertConversation = `
-        INSERT INTO conversations (id, title, user_id) 
-        VALUES (?, ?, ?);`
+        INSERT INTO conversations (id, title, user_id, create_time) 
+		VALUES (?, ?, ?, ?);`
 
 	DeleteConversation = `
         DELETE FROM conversations 
         WHERE id = ? AND user_id = ?;`
 
 	FetchConversations = `
-        SELECT id, title 
-        FROM conversations 
-        WHERE user_id = ? 
-        ORDER BY ROWID DESC;`
+        SELECT id, title, create_time
+		FROM conversations 
+		WHERE user_id = ? 
+		ORDER BY ROWID DESC;`
 )

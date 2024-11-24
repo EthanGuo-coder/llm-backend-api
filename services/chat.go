@@ -16,7 +16,7 @@ import (
 )
 
 // StreamSendMessage 处理流式消息发送
-func StreamSendMessage(c *gin.Context, conversationID string, message string) error {
+func StreamSendMessage(c *gin.Context, conversationID int64, message string) error {
 	// 获取会话
 	conversation, err := getConversationWithMessage(conversationID, message)
 	if err != nil {
@@ -57,7 +57,7 @@ func StreamSendMessage(c *gin.Context, conversationID string, message string) er
 }
 
 // getConversationWithMessage 获取会话并添加用户消息
-func getConversationWithMessage(conversationID, message string) (*models.Conversation, error) {
+func getConversationWithMessage(conversationID int64, message string) (*models.Conversation, error) {
 	// 从 Redis 获取会话
 	conversation, err := storage.GetConversationFromRedis(conversationID)
 	if err != nil {
@@ -67,7 +67,11 @@ func getConversationWithMessage(conversationID, message string) (*models.Convers
 		return nil, fmt.Errorf("conversation not found")
 	}
 	// 追加用户消息
-	userMessage := models.Message{Role: "user", Content: message}
+	userMessage := models.Message{
+		Role:      "user",
+		Content:   message,
+		MessageID: int32(len(conversation.Messages)),
+	}
 	conversation.Messages = append(conversation.Messages, userMessage)
 
 	// 将用户消息追加到 Redis
@@ -189,7 +193,7 @@ func sendSSEEvent(c *gin.Context, event, data string) {
 
 func saveConversationWithAIResponse(conversation *models.Conversation, fullResponse string) error {
 	// 构造 AI 回复消息
-	aiMessage := models.Message{Role: "assistant", Content: fullResponse}
+	aiMessage := models.Message{Role: "assistant", Content: fullResponse, MessageID: int32(len(conversation.Messages))}
 	// 追加到会话记录
 	conversation.Messages = append(conversation.Messages, aiMessage)
 	// 保存对话记录到 Redis
