@@ -16,7 +16,7 @@ import (
 )
 
 // StreamSendMessage 处理流式消息发送
-func StreamSendMessage(c *gin.Context, conversationID, apiKey, message string) error {
+func StreamSendMessage(c *gin.Context, conversationID string, message string) error {
 	// 获取会话
 	conversation, err := getConversationWithMessage(conversationID, message)
 	if err != nil {
@@ -27,6 +27,8 @@ func StreamSendMessage(c *gin.Context, conversationID, apiKey, message string) e
 	if err != nil {
 		return err
 	}
+	// 使用存储的 api_key
+	apiKey := conversation.ApiKey
 	// 创建 HTTP 请求
 	resp, err := sendAPIRequest(apiKey, requestData, conversation.Model)
 	if err != nil {
@@ -56,10 +58,13 @@ func StreamSendMessage(c *gin.Context, conversationID, apiKey, message string) e
 
 // getConversationWithMessage 获取会话并添加用户消息
 func getConversationWithMessage(conversationID, message string) (*models.Conversation, error) {
-	// 构造会话对象
+	// 从 Redis 获取会话
 	conversation, err := storage.GetConversationFromRedis(conversationID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load messages: %v", err)
+		return nil, fmt.Errorf("failed to load conversation: %v", err)
+	}
+	if conversation == nil {
+		return nil, fmt.Errorf("conversation not found")
 	}
 	// 追加用户消息
 	userMessage := models.Message{Role: "user", Content: message}

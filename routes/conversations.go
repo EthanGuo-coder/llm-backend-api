@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/EthanGuo-coder/llm-backend-api/middleware"
-	"github.com/EthanGuo-coder/llm-backend-api/models"
 	"github.com/EthanGuo-coder/llm-backend-api/services"
 	"github.com/EthanGuo-coder/llm-backend-api/utils"
 )
@@ -23,7 +22,12 @@ func RegisterConversationRoutes(r *gin.Engine) {
 }
 
 func createConversation(c *gin.Context) {
-	var req models.ConversationReq
+	var req struct {
+		Model  string `json:"model" binding:"required"`
+		Title  string `json:"title" binding:"required"`
+		ApiKey string `json:"api_key" binding:"required"`
+	}
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
@@ -37,7 +41,7 @@ func createConversation(c *gin.Context) {
 	}
 
 	// 创建新会话
-	conversation, err := services.CreateConversation(userID, req.Title, req.Model)
+	conversation, err := services.CreateConversation(userID, req.Title, req.Model, req.ApiKey)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

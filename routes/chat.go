@@ -27,7 +27,7 @@ func streamSendMessage(c *gin.Context) {
 	}
 
 	// 流式处理消息并返回 SSE
-	if err := services.StreamSendMessage(c, conversationID, req.ApiKey, req.Message); err != nil {
+	if err := services.StreamSendMessage(c, conversationID, req.Message); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 }

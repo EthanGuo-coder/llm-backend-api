@@ -11,15 +11,16 @@ import (
 )
 
 // CreateConversation 创建新的会话
-func CreateConversation(userID int64, title, model string) (*models.Conversation, error) {
+func CreateConversation(userID int64, title, model, apiKey string) (*models.Conversation, error) {
 	// 生成唯一会话 ID
 	conversationID := utils.GenerateID()
 
 	// 构造会话对象
 	conversation := &models.Conversation{
-		ID:    conversationID,
-		Title: title,
-		Model: model,
+		ID:     conversationID,
+		Title:  title,
+		Model:  model,
+		ApiKey: apiKey, // 存储 api_key
 		Messages: []models.Message{
 			{Role: "system", Content: constant.SystemPrompt},
 		},
