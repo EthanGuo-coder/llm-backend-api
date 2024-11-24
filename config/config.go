@@ -4,33 +4,15 @@ import (
 	"fmt"
 
 	"github.com/spf13/viper"
+
+	"github.com/EthanGuo-coder/llm-backend-api/models"
 )
 
-type Config struct {
-	Server struct {
-		Port string `mapstructure:"port"`
-	} `mapstructure:"server"`
-
-	Redis struct {
-		Address  string `mapstructure:"address"`
-		Password string `mapstructure:"password"`
-		DB       int    `mapstructure:"db"`
-	} `mapstructure:"redis"`
-
-	SQLite struct {
-		Path string `mapstructure:"path"`
-	} `mapstructure:"sqlite"`
-
-	JWT struct {
-		Secret string `mapstructure:"secret"`
-	} `mapstructure:"jwt"`
-}
-
-var AppConfig *Config
+var AppConfig *models.Config
 
 // LoadConfig 加载配置文件
 func LoadConfig(configPath string) error {
-	viper.SetConfigName("config") // 配置文件名称（不带扩展名）
+	viper.SetConfigName("config") // 配置文件名称
 	viper.SetConfigType("yaml")   // 配置文件类型
 	viper.AddConfigPath(configPath)
 
