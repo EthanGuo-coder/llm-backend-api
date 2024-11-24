@@ -14,24 +14,26 @@ type Conversation struct {
 	CreatedTime int64     `json:"created_time"` // Unix 时间戳
 }
 
-// SSEDelta 定义结构体以匹配 JSON 数据格式
-type SSEDelta struct {
-	Content string `json:"content"`
+type ConversationSummary struct {
+	ID          string `json:"conversation_id"`
+	Title       string `json:"title"`
+	CreatedTime int64  `json:"created_time"`
 }
 
-type SSEChoice struct {
-	Delta SSEDelta `json:"delta"`
-}
-
-type SSEResponse struct {
-	Choices []SSEChoice `json:"choices"`
-}
-
-type AskReq struct {
-	Message string `json:"message" binding:"required"`
+type ConversationHistory struct {
+	ID       string    `json:"conversation_id"`
+	Title    string    `json:"title"`
+	Model    string    `json:"model"`
+	Messages []Message `json:"messages"`
 }
 
 type ConversationReq struct {
 	Model string `json:"model" binding:"required"`
 	Title string `json:"title" binding:"required"`
+}
+
+type CreateConversationReq struct {
+	Model  string `json:"model" binding:"required"`
+	Title  string `json:"title" binding:"required"`
+	ApiKey string `json:"api_key" binding:"required"`
 }
