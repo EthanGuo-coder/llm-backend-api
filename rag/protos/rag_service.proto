@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package rag_service;
+
+option go_package = "github.com/EthanGuo-coder/MemoMind/memomind_rag_go_client/protos";
+
+// 知识库服务
+service KnowledgeBaseService {
+  // 创建知识库
+  rpc CreateKnowledgeBase(CreateKBRequest) returns (CreateKBResponse) {}
+
+  // 获取用户的所有知识库
+  rpc ListKnowledgeBases(ListKBsRequest) returns (ListKBsResponse) {}
+
+  // 上传并处理文档
+  rpc UploadDocument(UploadDocRequest) returns (UploadDocResponse) {}
+
+  // 从知识库检索信息
+  rpc RetrieveInfo(RetrieveRequest) returns (RetrieveResponse) {}
+
+  // 获取支持的Embedding模型列表
+  rpc ListEmbeddingModels(ListEmbeddingModelsRequest) returns (ListEmbeddingModelsResponse) {}
+}
+
+// --- Messages ---
+
+// 知识库信息
+message KnowledgeBaseInfo {
+  string kb_id = 1;        // 知识库ID
+  string kb_name = 2;      // 知识库名称
+  string embedding_model = 3; // 使用的Embedding模型
+}
+
+// 创建知识库请求
+message CreateKBRequest {
+  string uid = 1;          // 用户ID
+  string kb_name = 2;      // 知识库名称
+  string embedding_model = 3; // (可选) 指定Embedding模型, 留空则使用默认
+}
+
+// 创建知识库响应
+message CreateKBResponse {
+  bool success = 1;        // 是否成功
+  string kb_id = 2;        // 知识库ID
+  string message = 3;      // 响应消息
+}
+
+// 获取用户知识库列表请求
+message ListKBsRequest {
+  string uid = 1;          // 用户ID
+}
+
+// 获取用户知识库列表响应
+message ListKBsResponse {
+  bool success = 1;                   // 是否成功
+  repeated KnowledgeBaseInfo kbs = 2; // 知识库信息列表
+  string message = 3;                 // 响应消息
+}
+
+// 上传文档请求
+message UploadDocRequest {
+  string uid = 1;          // 用户ID (用于权限检查)
+  string kb_id = 2;        // 知识库ID
+  string doc_name = 3;     // 文档名称
+  bytes file_content = 4;  // 文件内容
+  string file_type = 5;    // 文件类型 (txt, docx)
+  // embedding_model 不在此处指定，因为它与KB绑定
+}
+
+// 上传文档响应
+message UploadDocResponse {
+  bool success = 1;        // 是否成功
+  string doc_id = 2;       // 文档ID
+  string message = 3;      // 响应消息
+}
+
+// 检索请求
+message RetrieveRequest {
+  string kb_id = 1;        // 知识库ID
+  string query = 2;        // 查询问题
+  int32 top_k = 3;         // 返回结果数量
+}
+
+// 检索响应
+message RetrieveResponse {
+  bool success = 1;                   // 是否成功
+  repeated RetrieveResult results = 2; // 检索结果列表
+  string message = 3;                 // 响应消息
+}
+
+// 检索结果
+message RetrieveResult {
+  string content = 1;       // 检索到的内容
+  float score = 2;          // 相关性分数
+  string doc_id = 3;        // 文档ID
+  string doc_name = 4;      // 文档名称
+}
+
+// 获取支持的Embedding模型列表请求 (空)
+message ListEmbeddingModelsRequest {}
+
+// 获取支持的Embedding模型列表响应
+message ListEmbeddingModelsResponse {
+  bool success = 1;                 // 是否成功
+  repeated string models = 2;       // 支持的模型名称列表
+  string message = 3;               // 响应消息
+}

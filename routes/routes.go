@@ -12,4 +12,7 @@ func RegisterRoutes(r *gin.Engine) {
 
 	// 聊天相关路由
 	RegisterChatRoutes(r)
+
+	// RAG 相关路由
+	RegisterRagRoutes(r)
 }

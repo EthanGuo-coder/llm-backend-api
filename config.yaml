@@ -14,3 +14,7 @@ sqlite:
   conn_max_lifetime: 0  # 0 表示永久连接
 jwt:
   secret: "S3cureK3y#2024!AIsafety"
+
+# RAG 服务配置
+rag:
+  service_addr: "localhost:50051"
