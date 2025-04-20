@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"github.com/EthanGuo-coder/llm-backend-api/config"
@@ -27,6 +29,16 @@ func main() {
 
 	r := gin.Default()
 	r.RedirectTrailingSlash = true
+
+	// 配置 CORS 中间件
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"}, // 允许所有来源
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// 注册路由
 	routes.RegisterRoutes(r)
