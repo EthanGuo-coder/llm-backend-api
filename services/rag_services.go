@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/EthanGuo-coder/llm-backend-api/models"
 	"github.com/EthanGuo-coder/llm-backend-api/rag/client"
-	"github.com/EthanGuo-coder/llm-backend-api/rag/models"
 )
 
 // 默认配置

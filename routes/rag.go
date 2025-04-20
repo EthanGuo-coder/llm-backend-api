@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/EthanGuo-coder/llm-backend-api/middleware"
-	"github.com/EthanGuo-coder/llm-backend-api/rag/models"
+	"github.com/EthanGuo-coder/llm-backend-api/models"
 	"github.com/EthanGuo-coder/llm-backend-api/services"
 	"github.com/EthanGuo-coder/llm-backend-api/utils"
 )
