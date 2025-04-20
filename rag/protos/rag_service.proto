@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package rag_service;
 
-option go_package = "github.com/EthanGuo-coder/MemoMind/memomind_rag_go_client/protos";
-
 // 知识库服务
 service KnowledgeBaseService {
   // 创建知识库
@@ -20,6 +18,15 @@ service KnowledgeBaseService {
 
   // 获取支持的Embedding模型列表
   rpc ListEmbeddingModels(ListEmbeddingModelsRequest) returns (ListEmbeddingModelsResponse) {}
+
+  // 获取知识库中的文档列表
+  rpc ListDocuments(ListDocsRequest) returns (ListDocsResponse) {}
+
+  // 删除知识库
+  rpc DeleteKnowledgeBase(DeleteKBRequest) returns (DeleteKBResponse) {}
+
+  // 删除文档
+  rpc DeleteDocument(DeleteDocRequest) returns (DeleteDocResponse) {}
 }
 
 // --- Messages ---
@@ -104,4 +111,49 @@ message ListEmbeddingModelsResponse {
   bool success = 1;                 // 是否成功
   repeated string models = 2;       // 支持的模型名称列表
   string message = 3;               // 响应消息
+}
+
+// Document information
+message DocumentInfo {
+  string doc_id = 1;       // 文档ID
+  string doc_name = 2;     // 文档名称
+  string file_type = 3;    // 文件类型
+  string created_at = 4;   // 创建时间
+}
+
+// 获取知识库文档列表请求
+message ListDocsRequest {
+  string kb_id = 1;        // 知识库ID
+}
+
+// 获取知识库文档列表响应
+message ListDocsResponse {
+  bool success = 1;        // 是否成功
+  repeated DocumentInfo docs = 2; // 文档信息列表
+  string message = 3;      // 响应消息
+}
+
+// 删除知识库请求
+message DeleteKBRequest {
+  string uid = 1;          // 用户ID
+  string kb_id = 2;        // 知识库ID
+}
+
+// 删除知识库响应
+message DeleteKBResponse {
+  bool success = 1;        // 是否成功
+  string message = 2;      // 响应消息
+}
+
+// 删除文档请求
+message DeleteDocRequest {
+  string uid = 1;          // 用户ID
+  string kb_id = 2;        // 知识库ID
+  string doc_id = 3;       // 文档ID
+}
+
+// 删除文档响应
+message DeleteDocResponse {
+  bool success = 1;        // 是否成功
+  string message = 2;      // 响应消息
 }

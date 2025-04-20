@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.20.3
-// source: protos/rag_service.proto
+// source: rag_service.proto
 
-package protos
+package yourproject
 
 import (
 	context "context"
@@ -24,6 +24,9 @@ const (
 	KnowledgeBaseService_UploadDocument_FullMethodName      = "/rag_service.KnowledgeBaseService/UploadDocument"
 	KnowledgeBaseService_RetrieveInfo_FullMethodName        = "/rag_service.KnowledgeBaseService/RetrieveInfo"
 	KnowledgeBaseService_ListEmbeddingModels_FullMethodName = "/rag_service.KnowledgeBaseService/ListEmbeddingModels"
+	KnowledgeBaseService_ListDocuments_FullMethodName       = "/rag_service.KnowledgeBaseService/ListDocuments"
+	KnowledgeBaseService_DeleteKnowledgeBase_FullMethodName = "/rag_service.KnowledgeBaseService/DeleteKnowledgeBase"
+	KnowledgeBaseService_DeleteDocument_FullMethodName      = "/rag_service.KnowledgeBaseService/DeleteDocument"
 )
 
 // KnowledgeBaseServiceClient is the client API for KnowledgeBaseService service.
@@ -40,6 +43,12 @@ type KnowledgeBaseServiceClient interface {
 	RetrieveInfo(ctx context.Context, in *RetrieveRequest, opts ...grpc.CallOption) (*RetrieveResponse, error)
 	// 获取支持的Embedding模型列表
 	ListEmbeddingModels(ctx context.Context, in *ListEmbeddingModelsRequest, opts ...grpc.CallOption) (*ListEmbeddingModelsResponse, error)
+	// 获取知识库中的文档列表
+	ListDocuments(ctx context.Context, in *ListDocsRequest, opts ...grpc.CallOption) (*ListDocsResponse, error)
+	// 删除知识库
+	DeleteKnowledgeBase(ctx context.Context, in *DeleteKBRequest, opts ...grpc.CallOption) (*DeleteKBResponse, error)
+	// 删除文档
+	DeleteDocument(ctx context.Context, in *DeleteDocRequest, opts ...grpc.CallOption) (*DeleteDocResponse, error)
 }
 
 type knowledgeBaseServiceClient struct {
@@ -95,6 +104,33 @@ func (c *knowledgeBaseServiceClient) ListEmbeddingModels(ctx context.Context, in
 	return out, nil
 }
 
+func (c *knowledgeBaseServiceClient) ListDocuments(ctx context.Context, in *ListDocsRequest, opts ...grpc.CallOption) (*ListDocsResponse, error) {
+	out := new(ListDocsResponse)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_ListDocuments_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseServiceClient) DeleteKnowledgeBase(ctx context.Context, in *DeleteKBRequest, opts ...grpc.CallOption) (*DeleteKBResponse, error) {
+	out := new(DeleteKBResponse)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_DeleteKnowledgeBase_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseServiceClient) DeleteDocument(ctx context.Context, in *DeleteDocRequest, opts ...grpc.CallOption) (*DeleteDocResponse, error) {
+	out := new(DeleteDocResponse)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_DeleteDocument_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KnowledgeBaseServiceServer is the server API for KnowledgeBaseService service.
 // All implementations must embed UnimplementedKnowledgeBaseServiceServer
 // for forward compatibility
@@ -109,6 +145,12 @@ type KnowledgeBaseServiceServer interface {
 	RetrieveInfo(context.Context, *RetrieveRequest) (*RetrieveResponse, error)
 	// 获取支持的Embedding模型列表
 	ListEmbeddingModels(context.Context, *ListEmbeddingModelsRequest) (*ListEmbeddingModelsResponse, error)
+	// 获取知识库中的文档列表
+	ListDocuments(context.Context, *ListDocsRequest) (*ListDocsResponse, error)
+	// 删除知识库
+	DeleteKnowledgeBase(context.Context, *DeleteKBRequest) (*DeleteKBResponse, error)
+	// 删除文档
+	DeleteDocument(context.Context, *DeleteDocRequest) (*DeleteDocResponse, error)
 	mustEmbedUnimplementedKnowledgeBaseServiceServer()
 }
 
@@ -130,6 +172,15 @@ func (UnimplementedKnowledgeBaseServiceServer) RetrieveInfo(context.Context, *Re
 }
 func (UnimplementedKnowledgeBaseServiceServer) ListEmbeddingModels(context.Context, *ListEmbeddingModelsRequest) (*ListEmbeddingModelsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListEmbeddingModels not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) ListDocuments(context.Context, *ListDocsRequest) (*ListDocsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListDocuments not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) DeleteKnowledgeBase(context.Context, *DeleteKBRequest) (*DeleteKBResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteKnowledgeBase not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) DeleteDocument(context.Context, *DeleteDocRequest) (*DeleteDocResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteDocument not implemented")
 }
 func (UnimplementedKnowledgeBaseServiceServer) mustEmbedUnimplementedKnowledgeBaseServiceServer() {}
 
@@ -234,6 +285,60 @@ func _KnowledgeBaseService_ListEmbeddingModels_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KnowledgeBaseService_ListDocuments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListDocsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).ListDocuments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_ListDocuments_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).ListDocuments(ctx, req.(*ListDocsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseService_DeleteKnowledgeBase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteKBRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).DeleteKnowledgeBase(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_DeleteKnowledgeBase_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).DeleteKnowledgeBase(ctx, req.(*DeleteKBRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseService_DeleteDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteDocRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).DeleteDocument(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_DeleteDocument_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).DeleteDocument(ctx, req.(*DeleteDocRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // KnowledgeBaseService_ServiceDesc is the grpc.ServiceDesc for KnowledgeBaseService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -261,7 +366,19 @@ var KnowledgeBaseService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "ListEmbeddingModels",
 			Handler:    _KnowledgeBaseService_ListEmbeddingModels_Handler,
 		},
+		{
+			MethodName: "ListDocuments",
+			Handler:    _KnowledgeBaseService_ListDocuments_Handler,
+		},
+		{
+			MethodName: "DeleteKnowledgeBase",
+			Handler:    _KnowledgeBaseService_DeleteKnowledgeBase_Handler,
+		},
+		{
+			MethodName: "DeleteDocument",
+			Handler:    _KnowledgeBaseService_DeleteDocument_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "protos/rag_service.proto",
+	Metadata: "rag_service.proto",
 }
