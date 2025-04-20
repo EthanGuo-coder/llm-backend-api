@@ -116,9 +116,10 @@ message ListEmbeddingModelsResponse {
 // Document information
 message DocumentInfo {
   string doc_id = 1;       // 文档ID
-  string doc_name = 2;     // 文档名称
-  string file_type = 3;    // 文件类型
-  string created_at = 4;   // 创建时间
+  string kb_id = 2;        // 知识库ID
+  string doc_name = 3;     // 文档名称
+  string file_type = 4;    // 文件类型
+  string created_at = 5;   // 创建时间
 }
 
 // 获取知识库文档列表请求
