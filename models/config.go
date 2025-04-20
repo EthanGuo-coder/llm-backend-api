@@ -21,4 +21,8 @@ type Config struct {
 	JWT struct {
 		Secret string `mapstructure:"secret"`
 	} `mapstructure:"jwt"`
+
+	RAG struct {
+		ServiceAddr string `mapstructure:"service_addr"`
+	} `mapstructure:"rag"`
 }

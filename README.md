@@ -18,6 +18,7 @@
 - **📡 Streaming Responses**: Efficiently stream AI responses in real-time, enhancing user experience.
 - **🛠️ Flexible Configuration**: Easily configurable through YAML files to suit various deployment environments.
 - **💾 Persistent Storage**: Utilizes SQLite for reliable data persistence and Redis for fast access to session data.
+- **🧠 RAG Service Integration**: Retrieval-Augmented Generation capabilities for knowledge-based conversations.
 
 ## 🛠️ Tech Stack
 
@@ -79,21 +80,21 @@ jwt:
 ### Configuration Parameters
 
 - **Server**
-    - `port`: The port on which the server will run.
+  - `port`: The port on which the server will run.
 
 - **Redis**
-    - `address`: Redis server address.
-    - `password`: Redis server password (if any).
-    - `db`: Redis database number.
+  - `address`: Redis server address.
+  - `password`: Redis server password (if any).
+  - `db`: Redis database number.
 
 - **SQLite**
-    - `path`: Path to the SQLite database file.
-    - `max_open_conns`: Maximum number of open connections to the database.
-    - `max_idle_conns`: Maximum number of idle connections.
-    - `conn_max_lifetime`: Maximum lifetime of a connection in seconds.
+  - `path`: Path to the SQLite database file.
+  - `max_open_conns`: Maximum number of open connections to the database.
+  - `max_idle_conns`: Maximum number of idle connections.
+  - `conn_max_lifetime`: Maximum lifetime of a connection in seconds.
 
 - **JWT**
-    - `secret`: Secret key for signing JWT tokens.
+  - `secret`: Secret key for signing JWT tokens.
 
 ---
 
@@ -135,7 +136,7 @@ jwt:
 ##### **Request**
 
 - **Headers**
-    - `Content-Type`: `application/json`
+  - `Content-Type`: `application/json`
 
 - **Body**
 
@@ -149,8 +150,8 @@ jwt:
 ##### **Response**
 
 - **Status Codes**
-    - `201 Created`: User registered successfully.
-    - `400 Bad Request`: Invalid input or username already exists.
+  - `201 Created`: User registered successfully.
+  - `400 Bad Request`: Invalid input or username already exists.
 
 - **Body**
 
@@ -170,7 +171,7 @@ jwt:
 ##### **Request**
 
 - **Headers**
-    - `Content-Type`: `application/json`
+  - `Content-Type`: `application/json`
 
 - **Body**
 
@@ -184,8 +185,8 @@ jwt:
 ##### **Response**
 
 - **Status Codes**
-    - `200 OK`: Authentication successful.
-    - `401 Unauthorized`: Invalid username or password.
+  - `200 OK`: Authentication successful.
+  - `401 Unauthorized`: Invalid username or password.
 
 - **Body**
 
@@ -207,8 +208,8 @@ jwt:
 ##### **Request**
 
 - **Headers**
-    - `Content-Type`: `application/json`
-    - `Authorization`: `Bearer <JWT Token>`
+  - `Content-Type`: `application/json`
+  - `Authorization`: `Bearer <JWT Token>`
 
 - **Body**
 
@@ -223,9 +224,9 @@ jwt:
 ##### **Response**
 
 - **Status Codes**
-    - `200 OK`: Conversation created successfully.
-    - `400 Bad Request`: Invalid request body.
-    - `401 Unauthorized`: Missing or invalid JWT token.
+  - `200 OK`: Conversation created successfully.
+  - `400 Bad Request`: Invalid request body.
+  - `401 Unauthorized`: Missing or invalid JWT token.
 
 - **Body**
 
@@ -249,18 +250,18 @@ jwt:
 ##### **Request**
 
 - **Headers**
-    - `Content-Type`: `application/json`
-    - `Authorization`: `Bearer <JWT Token>`
+  - `Content-Type`: `application/json`
+  - `Authorization`: `Bearer <JWT Token>`
 
 - **Path Parameters**
-    - `conversation_id` (integer): The ID of the conversation.
+  - `conversation_id` (integer): The ID of the conversation.
 
 ##### **Response**
 
 - **Status Codes**
-    - `200 OK`: History retrieved successfully.
-    - `404 Not Found`: Conversation ID does not exist.
-    - `401 Unauthorized`: Missing or invalid JWT token.
+  - `200 OK`: History retrieved successfully.
+  - `404 Not Found`: Conversation ID does not exist.
+  - `401 Unauthorized`: Missing or invalid JWT token.
 
 - **Body**
 
@@ -295,14 +296,14 @@ jwt:
 ##### **Request**
 
 - **Headers**
-    - `Content-Type`: `application/json`
-    - `Authorization`: `Bearer <JWT Token>`
+  - `Content-Type`: `application/json`
+  - `Authorization`: `Bearer <JWT Token>`
 
 ##### **Response**
 
 - **Status Codes**
-    - `200 OK`: Conversations retrieved successfully.
-    - `401 Unauthorized`: Missing or invalid JWT token.
+  - `200 OK`: Conversations retrieved successfully.
+  - `401 Unauthorized`: Missing or invalid JWT token.
 
 - **Body**
 
@@ -331,18 +332,18 @@ jwt:
 ##### **Request**
 
 - **Headers**
-    - `Content-Type`: `application/json`
-    - `Authorization`: `Bearer <JWT Token>`
+  - `Content-Type`: `application/json`
+  - `Authorization`: `Bearer <JWT Token>`
 
 - **Path Parameters**
-    - `conversation_id` (integer): The ID of the conversation to delete.
+  - `conversation_id` (integer): The ID of the conversation to delete.
 
 ##### **Response**
 
 - **Status Codes**
-    - `200 OK`: Conversation deleted successfully.
-    - `404 Not Found`: Conversation ID does not exist.
-    - `401 Unauthorized`: Missing or invalid JWT token.
+  - `200 OK`: Conversation deleted successfully.
+  - `404 Not Found`: Conversation ID does not exist.
+  - `401 Unauthorized`: Missing or invalid JWT token.
 
 - **Body**
 
@@ -364,11 +365,11 @@ jwt:
 ##### **Request**
 
 - **Headers**
-    - `Content-Type`: `application/json`
-    - `Authorization`: `Bearer <JWT Token>`
+  - `Content-Type`: `application/json`
+  - `Authorization`: `Bearer <JWT Token>`
 
 - **Path Parameters**
-    - `conversation_id` (integer): The ID of the conversation.
+  - `conversation_id` (integer): The ID of the conversation.
 
 - **Body**
 
@@ -381,11 +382,11 @@ jwt:
 ##### **Response**
 
 - **Status Codes**
-    - `200 OK`: Message processed and response streamed.
-    - `400 Bad Request`: Invalid conversation ID or request body.
-    - `401 Unauthorized`: Missing or invalid JWT token.
-    - `404 Not Found`: Conversation ID does not exist.
-    - `500 Internal Server Error`: Server encountered an error.
+  - `200 OK`: Message processed and response streamed.
+  - `400 Bad Request`: Invalid conversation ID or request body.
+  - `401 Unauthorized`: Missing or invalid JWT token.
+  - `404 Not Found`: Conversation ID does not exist.
+  - `500 Internal Server Error`: Server encountered an error.
 
 - **Streamed Response Format**
 
@@ -403,15 +404,386 @@ jwt:
 
   **Explanation of Events:**
 
-    - `message`: Incremental response chunks from the AI model.
-    - `done`: Indicates the end of the streamed response.
-    - `full_response`: Contains the full concatenated response.
+  - `message`: Incremental response chunks from the AI model.
+  - `done`: Indicates the end of the streamed response.
+  - `full_response`: Contains the full concatenated response.
+
+---
+
+### RAG Service Endpoints
+
+#### RAG Knowledge Base Management
+
+##### 1. **Create Knowledge Base**
+
+- **Endpoint**: `POST /api/rag/kb/create`
+- **Description**: Creates a new knowledge base with specified embedding model.
+
+##### **Request**
+
+- **Headers**
+  - `Content-Type`: `application/json`
+  - `Authorization`: `Bearer <JWT Token>`
+
+- **Body**
+
+  ```json
+  {
+      "kb_name": "法律知识库",
+      "embedding_model": "zhipu-embedding-3"  // Optional, uses default model if not specified
+  }
+  ```
+
+##### **Response**
+
+- **Status Codes**
+  - `200 OK`: Knowledge base created successfully.
+  - `400 Bad Request`: Invalid request parameters.
+  - `401 Unauthorized`: Missing or invalid JWT token.
+  - `500 Internal Server Error`: Server error.
+
+- **Body**
+
+  ```json
+  {
+      "success": true,
+      "kb_id": "a1b2c3d4-5678-90ab-cdef-123456789abc",
+      "message": "知识库创建成功，使用模型: zhipu-embedding-3"
+  }
+  ```
+
+---
+
+##### 2. **Get Knowledge Base List**
+
+- **Endpoint**: `GET /api/rag/kb/list`
+- **Description**: Retrieves all knowledge bases for the current user.
+
+##### **Request**
+
+- **Headers**
+  - `Authorization`: `Bearer <JWT Token>`
+
+##### **Response**
+
+- **Status Codes**
+  - `200 OK`: Knowledge bases retrieved successfully.
+  - `401 Unauthorized`: Missing or invalid JWT token.
+  - `500 Internal Server Error`: Server error.
+
+- **Body**
+
+  ```json
+  {
+      "success": true,
+      "kbs": [
+          {
+              "kb_id": "a1b2c3d4-5678-90ab-cdef-123456789abc",
+              "kb_name": "法律知识库",
+              "embedding_model": "zhipu-embedding-3"
+          },
+          {
+              "kb_id": "b2c3d4e5-6789-01bc-defg-2345678901de",
+              "kb_name": "技术文档知识库",
+              "embedding_model": "zhipu-embedding-2"
+          }
+      ],
+      "message": "知识库列表获取成功"
+  }
+  ```
+
+---
+
+##### 3. **Delete Knowledge Base**
+
+- **Endpoint**: `POST /api/rag/kb/delete`
+- **Description**: Deletes a specified knowledge base.
+
+##### **Request**
+
+- **Headers**
+  - `Content-Type`: `application/json`
+  - `Authorization`: `Bearer <JWT Token>`
+
+- **Body**
+
+  ```json
+  {
+      "kb_id": "a1b2c3d4-5678-90ab-cdef-123456789abc"
+  }
+  ```
+
+##### **Response**
+
+- **Status Codes**
+  - `200 OK`: Knowledge base deleted successfully.
+  - `400 Bad Request`: Invalid request parameters.
+  - `401 Unauthorized`: Missing or invalid JWT token.
+  - `500 Internal Server Error`: Server error.
+
+- **Body**
+
+  ```json
+  {
+      "success": true,
+      "message": "知识库删除成功"
+  }
+  ```
+
+---
+
+#### RAG Document Management
+
+##### 1. **Upload Document**
+
+- **Endpoint**: `POST /api/rag/doc/upload`
+- **Description**: Uploads a document to the specified knowledge base.
+
+##### **Request**
+
+- **Headers**
+  - `Content-Type`: `multipart/form-data`
+  - `Authorization`: `Bearer <JWT Token>`
+
+- **Form Parameters**
+  - `kb_id`: Knowledge base ID
+  - `file`: Document file
+
+##### **Response**
+
+- **Status Codes**
+  - `200 OK`: Document uploaded successfully.
+  - `400 Bad Request`: Invalid request parameters.
+  - `401 Unauthorized`: Missing or invalid JWT token.
+  - `500 Internal Server Error`: Server error.
+
+- **Body**
+
+  ```json
+  {
+      "success": true,
+      "doc_id": "d1e2f3g4-5678-90ab-cdef-123456789abc",
+      "message": "文档上传处理成功，共分割并添加 25 个文本块"
+  }
+  ```
+
+---
+
+##### 2. **Get Document List**
+
+- **Endpoint**: `GET /api/rag/doc/list`
+- **Description**: Retrieves all documents in the specified knowledge base.
+
+##### **Request**
+
+- **Headers**
+  - `Authorization`: `Bearer <JWT Token>`
+
+- **Query Parameters**
+  - `kb_id`: Knowledge base ID
+
+##### **Response**
+
+- **Status Codes**
+  - `200 OK`: Document list retrieved successfully.
+  - `400 Bad Request`: Invalid request parameters.
+  - `401 Unauthorized`: Missing or invalid JWT token.
+  - `500 Internal Server Error`: Server error.
+
+- **Body**
+
+  ```json
+  {
+      "success": true,
+      "docs": [
+          {
+              "doc_id": "d1e2f3g4-5678-90ab-cdef-123456789abc",
+              "kb_id": "a1b2c3d4-5678-90ab-cdef-123456789abc",
+              "doc_name": "合同协议.docx",
+              "file_type": "docx"
+          },
+          {
+              "doc_id": "e2f3g4h5-6789-01bc-defg-2345678901de",
+              "kb_id": "a1b2c3d4-5678-90ab-cdef-123456789abc",
+              "doc_name": "法律条款.txt",
+              "file_type": "txt"
+          }
+      ],
+      "message": "文档列表获取成功"
+  }
+  ```
+
+---
+
+##### 3. **Delete Document**
+
+- **Endpoint**: `POST /api/rag/doc/delete`
+- **Description**: Deletes a specified document from the knowledge base.
+
+##### **Request**
+
+- **Headers**
+  - `Content-Type`: `application/json`
+  - `Authorization`: `Bearer <JWT Token>`
+
+- **Body**
+
+  ```json
+  {
+      "kb_id": "a1b2c3d4-5678-90ab-cdef-123456789abc",
+      "doc_id": "d1e2f3g4-5678-90ab-cdef-123456789abc"
+  }
+  ```
+
+##### **Response**
+
+- **Status Codes**
+  - `200 OK`: Document deleted successfully.
+  - `400 Bad Request`: Invalid request parameters.
+  - `401 Unauthorized`: Missing or invalid JWT token.
+  - `500 Internal Server Error`: Server error.
+
+- **Body**
+
+  ```json
+  {
+      "success": true,
+      "message": "文档删除成功"
+  }
+  ```
+
+---
+
+#### RAG Retrieval and Chat
+
+##### 1. **Knowledge Base Retrieval**
+
+- **Endpoint**: `POST /api/rag/retrieve`
+- **Description**: Retrieves information related to a query from the knowledge base.
+
+##### **Request**
+
+- **Headers**
+  - `Content-Type`: `application/json`
+  - `Authorization`: `Bearer <JWT Token>`
+
+- **Body**
+
+  ```json
+  {
+      "kb_id": "a1b2c3d4-5678-90ab-cdef-123456789abc",
+      "query": "什么是不可抗力条款？",
+      "top_k": 5  // Optional, default is 5
+  }
+  ```
+
+##### **Response**
+
+- **Status Codes**
+  - `200 OK`: Retrieval successful.
+  - `400 Bad Request`: Invalid request parameters.
+  - `401 Unauthorized`: Missing or invalid JWT token.
+  - `500 Internal Server Error`: Server error.
+
+- **Body**
+
+  ```json
+  {
+      "success": true,
+      "results": [
+          {
+              "content": "不可抗力条款是指合同中约定的因不可预见、不可避免、不可克服的客观情况，导致合同无法履行或无法完全履行时，免除当事人部分或全部责任的条款...",
+              "score": 0.85,
+              "doc_id": "d1e2f3g4-5678-90ab-cdef-123456789abc",
+              "doc_name": "合同协议.docx"
+          },
+          {
+              "content": "在法律实践中，不可抗力通常包括自然灾害（如地震、洪水、台风等）和社会异常事件（如战争、罢工、政府行为等）...",
+              "score": 0.72,
+              "doc_id": "e2f3g4h5-6789-01bc-defg-2345678901de",
+              "doc_name": "法律条款.txt"
+          }
+      ],
+      "message": "检索成功"
+  }
+  ```
+
+---
+
+##### 2. **Knowledge Base Chat**
+
+- **Endpoint**: `POST /api/rag/chat`
+- **Description**: Conducts a chat based on knowledge base retrieval.
+
+##### **Request**
+
+- **Headers**
+  - `Content-Type`: `application/json`
+  - `Authorization`: `Bearer <JWT Token>`
+
+- **Body**
+
+  ```json
+  {
+      "conversation_id": 329629,
+      "kb_id": "a1b2c3d4-5678-90ab-cdef-123456789abc",
+      "message": "什么是不可抗力条款？",
+      "top_k": 3  // Optional, default is 5
+  }
+  ```
+
+##### **Response**
+
+- Same as regular chat endpoint, using SSE streaming format:
+  ```
+  {"event":"message", "data":"不可抗力条款是指"}
+  {"event":"message", "data":"合同中约定的因"}
+  {"event":"message", "data":"不可预见、不可避免..."}
+  {"event":"done", "data":"Stream finished"}
+  {"event":"full_response", "data":"不可抗力条款是指合同中约定的因不可预见、不可避免、不可克服的客观情况，导致合同无法履行或无法完全履行时，免除当事人部分或全部责任的条款。在法律实践中，不可抗力通常包括自然灾害（如地震、洪水、台风等）和社会异常事件（如战争、罢工、政府行为等）。"}
+  ```
+
+---
+
+#### RAG Metadata
+
+##### 1. **Get Supported Embedding Models**
+
+- **Endpoint**: `GET /api/rag/models`
+- **Description**: Retrieves all embedding models supported by the system.
+
+##### **Request**
+
+- **Headers**
+  - `Authorization`: `Bearer <JWT Token>`
+
+##### **Response**
+
+- **Status Codes**
+  - `200 OK`: Models retrieved successfully.
+  - `401 Unauthorized`: Missing or invalid JWT token.
+  - `500 Internal Server Error`: Server error.
+
+- **Body**
+
+  ```json
+  {
+      "success": true,
+      "models": [
+          "zhipu-embedding-3",
+          "zhipu-embedding-2"
+      ],
+      "message": "支持的Embedding模型列表获取成功"
+  }
+  ```
 
 ---
 
 ## Example `curl` Commands
 
-### 1. **Register a User**
+### Basic API Commands
+
+#### 1. **Register a User**
 
 ```bash
 curl -X POST http://localhost:8080/api/users/register \
@@ -422,7 +794,7 @@ curl -X POST http://localhost:8080/api/users/register \
 }'
 ```
 
-### 2. **Login a User**
+#### 2. **Login a User**
 
 ```bash
 curl -X POST http://localhost:8080/api/users/login \
@@ -433,7 +805,7 @@ curl -X POST http://localhost:8080/api/users/login \
 }'
 ```
 
-### 3. **Create a Conversation**
+#### 3. **Create a Conversation**
 
 ```bash
 curl -X POST http://localhost:8080/api/conversations/create \
@@ -446,7 +818,7 @@ curl -X POST http://localhost:8080/api/conversations/create \
 }'
 ```
 
-### 4. **Stream Chat Messages**
+#### 4. **Stream Chat Messages**
 
 ```bash
 curl -X POST http://localhost:8080/api/chat/329629 \
@@ -457,7 +829,7 @@ curl -X POST http://localhost:8080/api/chat/329629 \
 }'
 ```
 
-### 5. **Get Conversation History**
+#### 5. **Get Conversation History**
 
 ```bash
 curl -X GET http://localhost:8080/api/conversations/history/329629 \
@@ -465,7 +837,7 @@ curl -X GET http://localhost:8080/api/conversations/history/329629 \
 -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-### 6. **List User Conversations**
+#### 6. **List User Conversations**
 
 ```bash
 curl -X GET http://localhost:8080/api/conversations/list \
@@ -473,12 +845,69 @@ curl -X GET http://localhost:8080/api/conversations/list \
 -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-### 7. **Delete a Conversation**
+#### 7. **Delete a Conversation**
 
 ```bash
 curl -X POST http://localhost:8080/api/conversations/del/329629 \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### RAG Service Commands
+
+#### 1. **Create Knowledge Base**
+
+```bash
+curl -X POST http://localhost:8080/api/rag/kb/create \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer YOUR_JWT_TOKEN" \
+-d '{
+    "kb_name": "法律知识库",
+    "embedding_model": "zhipu-embedding-3"
+}'
+```
+
+#### 2. **Get Knowledge Base List**
+
+```bash
+curl -X GET http://localhost:8080/api/rag/kb/list \
+-H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+#### 3. **Upload Document to Knowledge Base**
+
+```bash
+curl -X POST http://localhost:8080/api/rag/doc/upload \
+-H "Authorization: Bearer YOUR_JWT_TOKEN" \
+-F "kb_id=a1b2c3d4-5678-90ab-cdef-123456789abc" \
+-F "file=@/path/to/your/document.docx"
+```
+
+#### 4. **Retrieve Information from Knowledge Base**
+
+```bash
+curl -X POST http://localhost:8080/api/rag/retrieve \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer YOUR_JWT_TOKEN" \
+-d '{
+    "kb_id": "a1b2c3d4-5678-90ab-cdef-123456789abc",
+    "query": "什么是不可抗力条款？",
+    "top_k": 5
+}'
+```
+
+#### 5. **Chat with Knowledge Base**
+
+```bash
+curl -X POST http://localhost:8080/api/rag/chat \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer YOUR_JWT_TOKEN" \
+-d '{
+    "conversation_id": 329629,
+    "kb_id": "a1b2c3d4-5678-90ab-cdef-123456789abc",
+    "message": "什么是不可抗力条款？",
+    "top_k": 3
+}'
 ```
 
 ---
@@ -505,6 +934,7 @@ curl -X POST http://localhost:8080/api/conversations/del/329629 \
 5. **Security**: Passwords are securely hashed using bcrypt. Ensure your `jwt.secret` in the configuration is kept confidential.
 6. **Customization**: Modify the `config.yaml` to suit your deployment environment, including changing ports, database paths, and Redis configurations.
 7. **Extensibility**: The project is modular, allowing for easy extension of features such as adding new models, integrating additional services, or enhancing existing functionalities.
+8. **RAG Service**: The Retrieval-Augmented Generation service enables knowledge-based conversations by retrieving relevant information from uploaded documents.
 
 ---
 
